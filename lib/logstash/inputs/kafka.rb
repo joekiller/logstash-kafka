@@ -35,9 +35,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     @logger.info('Running kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
     @consumer_group.run(@consumer_threads,@kafka_client_queue)
     while true
-      until @kafka_client_queue.empty?
         queue_event("#{@kafka_client_queue.pop}",logstash_queue)
-      end
     end
   end # def run
 
@@ -45,7 +43,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   def teardown
     @logger.info('Shutting down kafka client threads.')
     @consumer_group.shutdown()
-    @logger.info('Done tearing down kafka plugin.')
+    until @kafka_client_queue.empty?
+      queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+    end
+    @logger.info('Done tearing down kafka clients.')
     finished
   end # def teardown
 
