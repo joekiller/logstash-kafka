@@ -34,27 +34,28 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   def run(logstash_queue)
     @logger.info('Running kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
     @consumer_group.run(@consumer_threads,@kafka_client_queue)
-    while true
-        queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+    begin
+      while true
+          queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+      end
+    rescue LogStash::ShutdownSignal
+      @logger.info('Kafka got shutdown signal')
+      @consumer_group.shutdown()
     end
-  end # def run
-
-  public
-  def teardown
-    @logger.info('Shutting down kafka client threads.')
-    @consumer_group.shutdown()
+    sleep(1)
     until @kafka_client_queue.empty?
       queue_event("#{@kafka_client_queue.pop}",logstash_queue)
     end
-    @logger.info('Done tearing down kafka clients.')
+    @logger.info('Done running kafka input')
     finished
-  end # def teardown
+  end # def run
 
   private
   def queue_event(msg, output_queue)
     begin
       @codec.decode(msg) do |event|
         decorate(event)
+        event['kafka'] = {:msg_size => msg.bytesize, :topic => @topic_id, :consumer_group => @group_id}
         output_queue << event
       end # @codec.decode
     rescue => e # parse or event creation error
