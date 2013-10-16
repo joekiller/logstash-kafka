@@ -17,15 +17,19 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def register
-    @kafka_client_queue = SizedQueue.new(@queue_size)
+    jarpath = File.join(File.dirname(__FILE__), "../../../vendor/jar/kafka*.jar")
+    Dir[jarpath].each do |jar|
+      require jar
+    end
     options = {
-        :zk_connect_opt => @zk_connect,
-        :group_id_opt => @group_id,
-        :topic_id_opt => @topic_id,
+        :zk_connect => @zk_connect,
+        :group_id => @group_id,
+        :topic_id => @topic_id,
     }
     if @reset_beginning == true
-      options[:reset_beginning_opt] = 'from-beginning'
+      options[:reset_beginning] = 'from-beginning'
     end # if :reset_beginning
+    @kafka_client_queue = SizedQueue.new(@queue_size)
     @consumer_group = Kafka::Group.new(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
   end # def register
@@ -33,20 +37,29 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   public
   def run(logstash_queue)
     @logger.info('Running kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
-    @consumer_group.run(@consumer_threads,@kafka_client_queue)
     begin
-      while true
-          queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+      @consumer_group.run(@consumer_threads,@kafka_client_queue)
+      begin
+        while true
+            queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+        end
+      rescue LogStash::ShutdownSignal
+        @logger.info('Kafka got shutdown signal')
+        @consumer_group.shutdown()
       end
-    rescue LogStash::ShutdownSignal
-      @logger.info('Kafka got shutdown signal')
-      @consumer_group.shutdown()
+      until @kafka_client_queue.empty?
+        queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+      end
+      @logger.info('Done running kafka input')
+    rescue => e
+      @logger.warn("kafka client threw exception, restarting",
+                   :exception => e)
+      if @consumer_group.running?
+        @consumer_group.shutdown()
+      end
+      sleep(1)
+      retry
     end
-    sleep(1)
-    until @kafka_client_queue.empty?
-      queue_event("#{@kafka_client_queue.pop}",logstash_queue)
-    end
-    @logger.info('Done running kafka input')
     finished
   end # def run
 
