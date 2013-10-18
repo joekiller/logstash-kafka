@@ -41,7 +41,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       @consumer_group.run(@consumer_threads,@kafka_client_queue)
       begin
         while true
-            queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+          event = @kafka_client_queue.pop
+          if event == :stop_plugin
+            break
+          else
+            queue_event("#{event}",logstash_queue)
+          end
         end
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka got shutdown signal')
@@ -57,11 +62,15 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       if @consumer_group.running?
         @consumer_group.shutdown()
       end
-      sleep(1)
       retry
     end
     finished
   end # def run
+
+  public
+  def teardown
+    @kafka_client_queue.push(:stop_plugin)
+  end
 
   private
   def queue_event(msg, output_queue)
