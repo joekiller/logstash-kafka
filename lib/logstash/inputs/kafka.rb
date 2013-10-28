@@ -14,6 +14,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :reset_beginning, :validate => :boolean, :default => false
   config :consumer_threads, :validate => :number, :default => 1
   config :queue_size, :validate => :number, :default => 20
+  config :rebalance_max_retries, :validate => :number, :default => -1
+  config :rebalance_backoff_ms, :validate => :number, :default => 10000
 
   public
   def register
@@ -25,6 +27,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :zk_connect => @zk_connect,
         :group_id => @group_id,
         :topic_id => @topic_id,
+        :rebalance_max_retries => @rebalance_max_retries,
+        :rebalance_backoff_ms => @rebalance_backoff_ms,
     }
     if @reset_beginning == true
       options[:reset_beginning] = 'from-beginning'
@@ -36,6 +40,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def run(logstash_queue)
+    java_import 'kafka.common.ConsumerRebalanceFailedException'
     @logger.info('Running kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
     begin
       @consumer_group.run(@consumer_threads,@kafka_client_queue)
