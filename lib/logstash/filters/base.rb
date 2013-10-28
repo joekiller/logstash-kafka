@@ -148,6 +148,7 @@ class LogStash::Filters::Base < LogStash::Plugin
     end
 
     @remove_tag.each do |tag|
+      break if event["tags"].nil?
       tag = event.sprintf(tag)
       @logger.debug? and @logger.debug("filters/#{self.class.name}: removing tag",
                                        :tag => tag)
@@ -158,7 +159,7 @@ class LogStash::Filters::Base < LogStash::Plugin
   protected
   def filter?(event)
     if !@type.empty?
-      if event.type != @type
+      if event["type"] != @type
         @logger.debug? and @logger.debug(["filters/#{self.class.name}: Skipping event because type doesn't match #{@type}", event])
         return false
       end

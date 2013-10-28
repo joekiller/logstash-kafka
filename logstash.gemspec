@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.version       = LOGSTASH_VERSION
 
   # Core dependencies
-  gem.add_runtime_dependency "cabin", ["0.5.0"]   #(Apache 2.0 license)
+  gem.add_runtime_dependency "cabin", [">=0.6.0"]   #(Apache 2.0 license)
   gem.add_runtime_dependency "json"               #(ruby license)
   gem.add_runtime_dependency "minitest"           # for running the tests from the jar, (MIT license)
   gem.add_runtime_dependency "pry"                #(ruby license)
@@ -26,7 +26,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "i18n"               #(MIT license)
 
   # Web dependencies
-  gem.add_runtime_dependency "ftw", ["~> 0.0.34"] #(Apache 2.0 license)
+  gem.add_runtime_dependency "ftw", ["~> 0.0.36"] #(Apache 2.0 license)
   gem.add_runtime_dependency "haml"               #(MIT license)
   gem.add_runtime_dependency "rack"               #(MIT license)
   gem.add_runtime_dependency "sass"               #(MIT license)
@@ -48,7 +48,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "gelf", ["1.3.2"]                  #(MIT license)
   gem.add_runtime_dependency "gmetric", ["0.1.3"]               #(MIT license)
   gem.add_runtime_dependency "jiralicious", ["0.2.2"]		#(MIT license)
-  gem.add_runtime_dependency "jls-grok", ["0.10.11"]            #(BSD license)
+  gem.add_runtime_dependency "jls-grok", ["0.10.12"]            #(BSD license)
   gem.add_runtime_dependency "mail"                             #(MIT license)
   gem.add_runtime_dependency "mongo"                            #(Apache 2.0 license)
   gem.add_runtime_dependency "metriks"                          #(MIT license)
@@ -61,11 +61,11 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "xml-simple"                       #(ruby license?)
   gem.add_runtime_dependency "xmpp4r", ["0.5"]                  #(ruby license)
   gem.add_runtime_dependency "jls-lumberjack", [">=0.0.19"]     #(Apache 2.0 license)
-  gem.add_runtime_dependency "geoip", [">= 1.1.0"]              #(GPL license)
+  gem.add_runtime_dependency "geoip", [">= 1.3.2"]              #(GPL license)
   gem.add_runtime_dependency "beefcake", "0.3.7"                #(MIT license)
   gem.add_runtime_dependency "php-serialize"                    # For input drupal_dblog (MIT license)
   gem.add_runtime_dependency "murmurhash3"                      #(MIT license)
-  gem.add_runtime_dependency "rufus-scheduler"                  #(MIT license)
+  gem.add_runtime_dependency "rufus-scheduler", "~> 2.0.24"     #(MIT license)
   gem.add_runtime_dependency "user_agent_parser", [">= 2.0.0"]  #(MIT license)
   gem.add_runtime_dependency "snmp"                             #(ruby license)
   gem.add_runtime_dependency "varnish-rb"                       #(MIT license)
@@ -74,6 +74,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "sequel"                           #(MIT license)
   gem.add_runtime_dependency "jdbc-sqlite3"                     #(MIT license)
   gem.add_runtime_dependency "bindata", [">= 1.5.0"]            #(ruby license)
+  gem.add_runtime_dependency "twitter", "5.0.0.rc.1"            #(MIT license)
 
   if RUBY_PLATFORM == 'java'
     gem.platform = RUBY_PLATFORM
@@ -108,4 +109,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "rspec"            #(MIT license)
   gem.add_runtime_dependency "insist", "1.0.0"  #(Apache 2.0 license)
   gem.add_runtime_dependency "rumbster"         # For faking smtp in email tests (Apache 2.0 license)
+  
+  #Development Deps
+  gem.add_development_dependency "coveralls"
 end

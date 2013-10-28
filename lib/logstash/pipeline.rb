@@ -206,6 +206,7 @@ class LogStash::Pipeline
   def outputworker
     LogStash::Util::set_thread_name(">output")
     @outputs.each(&:register)
+    @outputs.each(&:worker_setup)
     while true
       event = @filter_to_output.pop
       break if event == LogStash::ShutdownSignal
@@ -226,6 +227,12 @@ class LogStash::Pipeline
       begin
         thread.wakeup # in case it's in blocked IO or sleeping
       rescue ThreadError
+      end
+
+      # Sometimes an input is stuck in a blocking I/O
+      # so we need to tell it to teardown directly
+      @inputs.each do |input|
+        input.teardown
       end
     end
 

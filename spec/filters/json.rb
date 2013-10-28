@@ -51,7 +51,22 @@ describe LogStash::Filters::Json do
     CONFIG
 
     sample "invalid json" do
-      insist { subject.tags }.include?("_jsonparsefailure")
+      insist { subject["tags"] }.include?("_jsonparsefailure")
+    end
+  end
+
+  describe "fixing @timestamp (#pull 733)" do
+    config <<-CONFIG
+      filter {
+        json {
+          source => "message"
+        }
+      }
+    CONFIG
+
+    sample "{ \"@timestamp\": \"2013-10-19T00:14:32.996Z\" }" do
+      insist { subject["@timestamp"] }.is_a?(Time)
+      insist { subject["@timestamp"].to_json } == "\"2013-10-19T00:14:32.996Z\""
     end
   end
 end

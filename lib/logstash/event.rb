@@ -57,19 +57,6 @@ class LogStash::Event
     data["@version"] = "1" if !@data.include?("@version")
   end # def initialize
 
-  # Add class methods on inclusion.
-  public
-  def self.included(klass)
-    klass.extend(ClassMethods)
-  end # def included
-
-  module ClassMethods
-    public
-    def from_json(json)
-      return self.new(JSON.parse(json))
-    end # def from_json
-  end
-
   public
   def cancel
     @cancelled = true
@@ -254,15 +241,6 @@ class LogStash::Event
       end # 'key' checking
     end # format.gsub...
   end # def sprintf
-
-  # Shims to remove after event v1 is the default.
-  def tags=(value); self["tags"] = value; end
-  def tags; return self["tags"]; end
-  def message=(value); self["message"] = value; end
-  def source=(value); self["source"] = value; end
-  def type=(value); self["type"] = value; end
-  def type; return self["type"]; end
-  def fields; return self.to_hash; end
 
   def tag(value)
     # Generalize this method for more usability
