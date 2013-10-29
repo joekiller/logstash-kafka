@@ -14,8 +14,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :reset_beginning, :validate => :boolean, :default => false
   config :consumer_threads, :validate => :number, :default => 1
   config :queue_size, :validate => :number, :default => 20
-  config :rebalance_max_retries, :validate => :number, :default => -1
-  config :rebalance_backoff_ms, :validate => :number, :default => 10000
+  config :rebalance_max_retries, :validate => :number, :default => 4
+  config :rebalance_backoff_ms, :validate => :number, :default => 2000
+  config :consumer_timeout_ms, :validate => :number, :default => -1
+  config :consumer_restart_on_error, :validate => :boolean, :default => true
+  config :consumer_restart_sleep_ms, :validate => :number, :default => 10000
 
   public
   def register
@@ -29,6 +32,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :topic_id => @topic_id,
         :rebalance_max_retries => @rebalance_max_retries,
         :rebalance_backoff_ms => @rebalance_backoff_ms,
+        :consumer_timeout_ms => @consumer_timeout_ms,
+        :consumer_restart_on_error => @consumer_restart_on_error,
+        :consumer_restart_sleep_ms => @consumer_restart_sleep_ms
     }
     if @reset_beginning == true
       options[:reset_beginning] = 'from-beginning'
@@ -62,11 +68,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       end
       @logger.info('Done running kafka input')
     rescue => e
-      @logger.warn("kafka client threw exception, restarting",
+      @logger.warn('kafka client threw exception, restarting',
                    :exception => e)
       if @consumer_group.running?
         @consumer_group.shutdown()
       end
+      sleep(Float(@consumer_restart_sleep_ms) * 1 / 1000)
       retry
     end
     finished
