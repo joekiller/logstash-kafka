@@ -18,7 +18,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :rebalance_backoff_ms, :validate => :number, :default => 2000
   config :consumer_timeout_ms, :validate => :number, :default => -1
   config :consumer_restart_on_error, :validate => :boolean, :default => true
-  config :consumer_restart_sleep_ms, :validate => :number, :default => 10000
+  config :consumer_restart_sleep_ms, :validate => :number, :default => 0
 
   public
   def register
@@ -89,7 +89,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     begin
       @codec.decode(msg) do |event|
         decorate(event)
-        event['kafka'] = {:msg_size => msg.bytesize, :topic => @topic_id, :consumer_group => @group_id}
+        event['kafka'] = {'msg_size' => msg.bytesize, 'topic' => @topic_id, 'consumer_group' => @group_id}
         output_queue << event
       end # @codec.decode
     rescue => e # parse or event creation error
