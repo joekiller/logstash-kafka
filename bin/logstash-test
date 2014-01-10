@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-
-require "rubygems"
-$:.unshift "#{File.dirname(__FILE__)}/../lib"
-require "logstash/runner"
-
-ARGV.unshift("test")
-LogStash::Runner.new.main(ARGV)

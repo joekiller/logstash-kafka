@@ -1,1 +1,0 @@
-/sbin/chkconfig --add logstash

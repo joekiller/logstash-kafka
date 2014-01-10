@@ -31,10 +31,10 @@ def install_gem(name, requirement, target)
   end
 end # def install_gem
 
-gemspec = ARGV.shift || "logstash.gemspec"
+gemspec = ARGV.shift || "logstash-kafka.gemspec"
 
 spec = Gem::Specification.load(gemspec)
-deps = [spec.development_dependencies, spec.runtime_dependencies].flatten
+deps = [spec.runtime_dependencies].flatten
 
 deps.each do |dep|
   # TODO(sissel): Hack for now
