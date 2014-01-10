@@ -2,8 +2,7 @@
 #   rsync
 #   wget or curl
 #
-JRUBY_VERSION=1.7.9
-VENDOR_DIR=vendor/bundle/jruby/1.9
+JRUBY_VERSION=1.7.5
 
 WITH_JRUBY=java -jar $(shell pwd)/$(JRUBY) -S
 JRUBY=vendor/jar/jruby-complete-$(JRUBY_VERSION).jar
@@ -13,6 +12,7 @@ JRUBYC=$(WITH_JRUBY) jrubyc
 
 KAFKA_VERSION=0.8.0
 LOGSTASH_VERSION=1.2.2
+VENDOR_DIR=vendor/bundle/jruby/1.9
 
 KAFKA_URL=http://apache.mirrors.pair.com/kafka/0.8.0/kafka_2.8.0-0.8.0.tar.gz
 
@@ -69,6 +69,7 @@ vendor/jar: vendor
 get-kafka: | vendor/jar
 	@echo "=> Fetching kafka"
 	$(QUIET)$(DOWNLOAD_COMMAND) vendor/kafka_2.8.0-$(KAFKA_VERSION).tar.gz $(KAFKA_URL)
+
 	@echo "=> Pulling the jars out of Kafka"
 	$(QUIET)tar -C vendor/jar -xf vendor/kafka_2.8.0-$(KAFKA_VERSION).tar.gz $(TAR_OPTS) \
 		--strip-components 2 'kafka_2.8.0-$(KAFKA_VERSION)/libs/*.jar'
@@ -80,9 +81,21 @@ get-logstash: | vendor/jar
 	@echo "=> Fetching logstash jar"
 	$(QUIET)$(DOWNLOAD_COMMAND) vendor/jar/logstash-$(LOGSTASH_VERSION)-flatjar.jar $(LOGSTASH_URL)
 
-build/monolith: get-logstash get-kafka $(JRUBY) vendor-gems copy-ruby-files build/flatgems | build
+build/monolith: get-logstash get-kafka $(JRUBY) vendor-gems copy-ruby-files | build
 	$(QUIET)mkdir -p $@
-	$(QUIET)cp vendor/jar/logstash-$(LOGSTASH_VERSION)-flatjar.jar $@/
+	@# Unpack all the 3rdparty jars and any jars in gems
+	$(QUIET)find $$PWD/vendor/bundle $$PWD/vendor/jar -name '*.jar' \
+	| (cd $@; xargs -n1 jar xf)
+	@# Merge all service file in all 3rdparty jars
+	$(QUIET)mkdir -p $@/META-INF/services/
+	$(QUIET)find $$PWD/vendor/bundle $$PWD/vendor/jar -name '*.jar' \
+	| xargs $(JRUBY_CMD) extract_services.rb -o $@/META-INF/services
+	-$(QUIET)rm -f $@/META-INF/*.LIST
+	-$(QUIET)rm -f $@/META-INF/*.MF
+	-$(QUIET)rm -f $@/META-INF/*.RSA
+	-$(QUIET)rm -f $@/META-INF/*.SF
+	-$(QUIET)rm -f $@/META-INF/NOTICE $@/META-INF/NOTICE.txt
+	-$(QUIET)rm -f $@/META-INF/LICENSE $@/META-INF/LICENSE.txt
 
 build-jruby: $(JRUBY)
 
@@ -102,13 +115,6 @@ vendor/bundle: | vendor $(JRUBY)
 	@#-find $@/jruby/1.9/gems/ -name '*.rb' | xargs -n1 sed -i -re '/^[ \t]*#/d; /^[ \t]*$$/d'
 	$(QUIET)touch $@
 
-build/flatgems: | build vendor/bundle
-	@echo "=> Copy external gems"
-	mkdir $@
-	for i in $(VENDOR_DIR)/gems/*/lib; do \
-			rsync -a $$i/ $@/$$(basename $$i) ; \
-	done
-
 .PHONY: copy-ruby-files
 copy-ruby-files: | build/ruby
 	@# Copy lib/ and test/ files to the root
@@ -116,13 +122,19 @@ copy-ruby-files: | build/ruby
 	@# Delete any empty directories copied by rsync.
 	$(QUIET)find ./build/ruby -type d -empty -delete
 
-build/jar: | build build/monolith
+build/flatgems: | build vendor/bundle
+	@echo "=> Copy external gems"
+	mkdir $@
+	for i in $(VENDOR_DIR)/gems/*/lib; do \
+			rsync -a $$i/ $@/$$(basename $$i) ; \
+	done
+
+build/jar: | build build/flatgems build/monolith
 	$(QUIET)mkdir build/jar
-	$(QUIET)rsync -a build/monolith/ build/flatgems/lib/ build/ruby/ build/jar/
-	$(MAKE) -C $@ insert-ruby
-	$find build/jar -name '*.rb' | xargs -n1 jar -uf logstash-$(LOGSTASH_VERSION)-flatjar.jar
+	$(QUIET)rsync -a build/monolith/ build/ruby/ build/flatgems/ build/jar/
 
 flatjar: build/logstash-$(LOGSTASH_VERSION)-flatjar-kafka-$(KAFKA_VERSION).jar
 build/logstash-$(LOGSTASH_VERSION)-flatjar-kafka-$(KAFKA_VERSION).jar: | build/jar
-	#$(QUIET)rm -f $@
+	$(QUIET)rm -f $@
+	$(QUIET)jar cfe $@ logstash.runner -C build/jar .
 	@echo "Created $@"
