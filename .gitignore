@@ -21,3 +21,4 @@ data
 *.pyc
 etc/jira-output.conf
 coverage/*
+sample-kafka.conf
