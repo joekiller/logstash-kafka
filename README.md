@@ -1,119 +1,75 @@
-# logstash
+# logstash-kafka
 
-[![Build Status](https://secure.travis-ci.org/logstash/logstash.png)](http://travis-ci.org/logstash/logstash)
+This project implements Kafka 0.8.0 inputs and outputs for logstash.
 
-logstash is a tool for managing events and logs. You can use it to collect
-logs, parse them, and store them for later use (like, for searching). Speaking
-of searching, logstash comes with a web interface for searching and drilling
-into all of your logs.
+For more info about logstash, see <http://logstash.net/>
 
-It is fully free and fully open source. The license is Apache 2.0, meaning you
-are pretty much free to use it however you want in whatever way.
+## Dependencies
 
-For more info, see <http://logstash.net/>
+* [Apache Kafka] version 0.8.0
 
-## Need Help?
+* [jruby-kafka] library.
 
-Need help? Try #logstash on freenode irc or the logstash-users@googlegroups.com
-mailing list.
-
-You can also find documentation on the <http://logstash.net> site.
-
-## Developing
-
-If you don't have JRuby already (or don't use rvm, rbenv, etc), you can have `bin/logstash` fetch it for you by setting `USE_JRUBY`:
-
-    USE_JRUBY=1 bin/logstash ...
-
-Otherwise, here's how to get started with rvm: 
-
-    # Install JRuby with rvm
-    rvm install jruby-1.7.4
-    rvm use jruby-1.7.4
-
-Now install dependencies:
-
-    # Install logstash ruby dependencies
-    bin/logstash deps
-
-Other commands:
-
-    # to use logstash gems or libraries in irb, use the following
-    # this gets you an 'irb' shell with logstash's environment
-    bin/logstash irb
-
-    # or use irb from the jar
-    java -jar logstash-<version>-monolithic.jar irb
-
-    # Run logstash
-    bin/logstash agent [options]
-    
-    # If running bin/logstash agent yields complaints about log4j/other things
-    # This will download the elasticsearch jars so logstash can use them.
-    make vendor-elasticsearch
-
-## Testing
-
-There are a few ways to run the tests. For development, using `bin/logstash
-rspec <some spec>` will suffice:
-
-    % bin/logstash rspec spec/filters/grok.rb 
-    ...................
-
-    Finished in 0.123 seconds
-    19 examples, 0 failures
-
-Alternately, if you have just built the flatjar, you can run the tests
-specifically on those like so:
-
-    make flatjar-test
-
-If you want to run all the tests from source (not compiled jar), do:
-
-    make test
-
-Finally, like 'bin/logstash rspec' above, you can invoke the jar to run a
-specific test like so:
-
-    % java -jar logstash.jar rspec spec/filters/grok.rb
-    ...................
-
-    Finished in 0.346 seconds
-    19 examples, 0 failures
+[Apache Kafka]: http://kafka.apache.org/
+[jruby-kafka]: https://github.com/joekiller/jruby-kafka
 
 ## Building
 
-Releases are available here: <http://logstash.objects.dreamhost.com/>
+Because this is a plugin to Logstash, it must be built.  Luckily for you, there is a make file that handles all of this.
 
-If you want to build the jar yourself, run:
+Most of the logic originated from logstash's make file so thank you everyone who had contributed to it to enable me to
+make this easy for you.
 
-    make flatjar
+The make file is currently configured to use JRuby version 1.7.9 and logstash version 1.3.2.
 
-To update a flat jar previously built with 'make flatjar', run:
+To simply build the logstash jar as is with Kafka enabled run:
 
-    make update-flatjar
+    # make flatjar
 
+To build the logstash jar with a different version of logstash do:
 
-You can build rpms and debs, if you need those. Building rpms requires you have [fpm](github.com/jordansissel/fpm), then do this:
+    # make flatjar LOGSTASH_VERSION=1.3.2
 
-    make package
+## Configuration for runtime
 
-## Project Principles
+jruby-kafka supports nearly all the configuration options of a Kafka high level consumer but some have been left out of
+this plugin simply because either it was a priority or I hadn't tested it yet.  If one isn't currently, it should be
+trivial to add it via jruby-kafka and then in the logstash input or output.
 
-* Community: If a newbie has a bad time, it's a bug.
-* Software: Make it work, then make it right, then make it fast.
-* Technology: If it doesn't do a thing today, we can make it do it tomorrow.
+### Input
 
-## Contributing
+    # input {
+        kafka {
+            zk_connect => ... # string (optional), default: "localhost:2181"
+            group_id => ... # string (optional), default: "logstash"
+            topic_id => ... # string (optional), default: "test"
+            reset_beginning => ... # boolean (optional), default: false
+            consumer_threads => ... # number (optional), default: 1
+            queue_size => ... # number (optional), default: 20
+            rebalance_max_retries => ... # number (optional), default: 4
+            rebalance_backoff_ms => ... # number (optional), default:  2000
+            consumer_timeout_ms => ... # number (optional), default: -1
+            consumer_restart_on_error => ... # boolean (optional), default: true
+            consumer_restart_sleep_ms => ... # number (optional), default: 0
+        }
+    }
 
-All contributions are welcome: ideas, patches, documentation, bug reports,
-complaints, and even something you drew up on a napkin.
+### Output
 
-Programming is not a required skill. Whatever you've seen about open source and
-maintainers or community members  saying "send patches or die" - you will not
-see that here.
+    # output {
+        kafka {
+            :zk_connect => ... # string (required)
+            :topic_id => ... # string (required)
+            :broker_list => ... # string (required)
+        }
+    }
 
-It is more important to me that you are able to contribute.
+## Testing
 
-For more information about contributing, see the
-[CONTRIBUTING](CONTRIBUTING.md) file.
+There are no tests are the current time.  Please feel free to submit a pull request.
+
+## Notes
+
+The make file currently flattens the Kafka jar files and merges them into the uberjar.  I think this is overkill but
+it is the way it is working now.  Feel free to test other ways to make this all simpler.  I need to get it to
+"just work" currently so that is where we are now.

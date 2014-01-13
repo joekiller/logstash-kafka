@@ -2,7 +2,7 @@
 #   rsync
 #   wget or curl
 #
-JRUBY_VERSION=1.7.5
+JRUBY_VERSION?=1.7.9
 
 WITH_JRUBY=java -jar $(shell pwd)/$(JRUBY) -S
 JRUBY=vendor/jar/jruby-complete-$(JRUBY_VERSION).jar
@@ -11,12 +11,12 @@ JRUBY_CMD=java -jar $(JRUBY)
 JRUBYC=$(WITH_JRUBY) jrubyc
 
 KAFKA_VERSION=0.8.0
-LOGSTASH_VERSION=1.2.2
+LOGSTASH_VERSION?=1.3.2
 VENDOR_DIR=vendor/bundle/jruby/1.9
 
 KAFKA_URL=http://apache.mirrors.pair.com/kafka/0.8.0/kafka_2.8.0-0.8.0.tar.gz
 
-LOGSTASH_URL=https://download.elasticsearch.org/logstash/logstash/logstash-1.2.2-flatjar.jar
+LOGSTASH_URL=https://download.elasticsearch.org/logstash/logstash/logstash-$(LOGSTASH_VERSION)-flatjar.jar
 
 WGET=$(shell which wget 2>/dev/null)
 CURL=$(shell which curl 2>/dev/null)
@@ -131,7 +131,7 @@ build/flatgems: | build vendor/bundle
 
 build/jar: | build build/flatgems build/monolith
 	$(QUIET)mkdir build/jar
-	$(QUIET)rsync -a build/monolith/ build/ruby/ build/flatgems/ build/jar/
+	$(QUIET)rsync -a build/monolith/ build/flatgems/lib/ build/ruby/ build/jar/
 
 flatjar: build/logstash-$(LOGSTASH_VERSION)-flatjar-kafka-$(KAFKA_VERSION).jar
 build/logstash-$(LOGSTASH_VERSION)-flatjar-kafka-$(KAFKA_VERSION).jar: | build/jar

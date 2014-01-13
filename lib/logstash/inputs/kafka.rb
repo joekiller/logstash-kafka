@@ -8,9 +8,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   default :codec, 'plain'
 
-  config :zk_connect, :validate => :string, :required => true
-  config :group_id, :validate => :string, :required => true
-  config :topic_id, :validate => :string, :required => true
+  config :zk_connect, :validate => :string, :default => 'localhost:2181'
+  config :group_id, :validate => :string, :default => 'logstash'
+  config :topic_id, :validate => :string, :default => 'test'
   config :reset_beginning, :validate => :boolean, :default => false
   config :consumer_threads, :validate => :number, :default => 1
   config :queue_size, :validate => :number, :default => 20
