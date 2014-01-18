@@ -58,7 +58,6 @@ trivial to add it via jruby-kafka and then in the logstash input or output.
 
     # output {
         kafka {
-            :zk_connect => ... # string (required)
             :topic_id => ... # string (required)
             :broker_list => ... # string (required)
         }
