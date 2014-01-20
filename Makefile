@@ -11,7 +11,7 @@ JRUBY_CMD=java -jar $(JRUBY)
 JRUBYC=$(WITH_JRUBY) jrubyc
 
 KAFKA_VERSION=0.8.0
-LOGSTASH_VERSION?=1.3.2
+LOGSTASH_VERSION?=1.3.3
 VENDOR_DIR=vendor/bundle/jruby/1.9
 
 KAFKA_URL=http://apache.mirrors.pair.com/kafka/0.8.0/kafka_2.8.0-0.8.0.tar.gz

@@ -20,7 +20,7 @@ Because this is a plugin to Logstash, it must be built.  Luckily for you, there 
 Most of the logic originated from logstash's make file so thank you everyone who had contributed to it to enable me to
 make this easy for you.
 
-The make file is currently configured to use JRuby version 1.7.9 and logstash version 1.3.2.
+The make file is currently configured to use JRuby version 1.7.9 and logstash version 1.3.3.
 
 To simply build the logstash jar as is with Kafka enabled run:
 
@@ -28,7 +28,7 @@ To simply build the logstash jar as is with Kafka enabled run:
 
 To build the logstash jar with a different version of logstash do:
 
-    # make flatjar LOGSTASH_VERSION=1.3.2
+    # make flatjar LOGSTASH_VERSION=1.3.3
 
 ## Configuration for runtime
 
