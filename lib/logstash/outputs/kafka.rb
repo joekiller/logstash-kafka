@@ -8,8 +8,10 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
 
   default :codec, 'plain'
 
-  config :broker_list, :validate => :string, :required => true
-  config :topic_id, :validate => :string, :required => true
+  config :broker_list, :validate => :string, :default => 'localhost:9092'
+  config :topic_id, :validate => :string, :default => 'test'
+  config :compression_codec, :validate => %w(none gzip snappy), :default => 'none'
+  config :compressed_topics, :validate => :string, :default => ''
 
   public
   def register
@@ -18,8 +20,10 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       require jar
     end
     options = {
-        :topic_id => @topic_id,
-        :broker_list => @broker_list
+      :topic_id => @topic_id,
+      :broker_list => @broker_list,
+      :compression_codec => @compression_codec,
+      :compressed_topics => @compressed_topics
     }
     @producer = Kafka::Producer.new(options)
     @producer.connect()

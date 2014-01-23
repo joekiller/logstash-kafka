@@ -58,8 +58,22 @@ trivial to add it via jruby-kafka and then in the logstash input or output.
 
     # output {
         kafka {
-            :topic_id => ... # string (required)
-            :broker_list => ... # string (required)
+            :broker_list => ... # string (optional), default: "localhost:9092"
+            :topic_id => ... # string (optional), default: "test"
+            :compression_codec => ... # string (optional), one of ["none", "gzip", "snappy"], default: "none"
+            :compressed_topics => ... # string (optional), default: ""
+        }
+    }
+
+Please note on the output that the default codec is plain which will encode your messages with not only the message
+but also with a timestamp and hostname.  If you do not want anything but your message passing through, you should make
+the output configuration something like:
+
+    # output {
+        kafka {
+            codec => plain {
+                format => "%{message}"
+            }
         }
     }
 
