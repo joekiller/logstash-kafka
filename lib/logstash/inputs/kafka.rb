@@ -6,7 +6,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
   milestone 1
 
-  default :codec, 'plain'
+  default :codec, 'json'
 
   config :zk_connect, :validate => :string, :default => 'localhost:2181'
   config :group_id, :validate => :string, :default => 'logstash'
