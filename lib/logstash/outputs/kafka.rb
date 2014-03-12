@@ -6,7 +6,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config_name 'kafka'
   milestone 1
 
-  default :codec, 'plain'
+  default :codec, 'json'
 
   config :broker_list, :validate => :string, :default => 'localhost:9092'
   config :topic_id, :validate => :string, :default => 'test'
