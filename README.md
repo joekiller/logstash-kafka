@@ -1,12 +1,12 @@
 # logstash-kafka
 
-This project implements Kafka 0.8.0 inputs and outputs for logstash.
+This project implements Kafka 0.8.1 inputs and outputs for logstash.
 
 For more info about logstash, see <http://logstash.net/>
 
 ## Dependencies
 
-* [Apache Kafka] version 0.8.0
+* [Apache Kafka] version 0.8.1
 
 * [jruby-kafka] library.
 
