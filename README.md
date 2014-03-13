@@ -66,7 +66,7 @@ trivial to add it via jruby-kafka and then in the logstash input or output.
         }
     }
 
-Please note on the output that the default codec is plain which will encode your messages with not only the message
+The default codec is json for input and outputs.  If you select a codec of plain, logstash will encode your messages with not only the message
 but also with a timestamp and hostname.  If you do not want anything but your message passing through, you should make
 the output configuration something like:
 
