@@ -10,11 +10,11 @@ JRUBY_URL=http://jruby.org.s3.amazonaws.com/downloads/$(JRUBY_VERSION)/jruby-com
 JRUBY_CMD=java -jar $(JRUBY)
 JRUBYC=$(WITH_JRUBY) jrubyc
 
-KAFKA_VERSION=0.8.0
+KAFKA_VERSION=0.8.1
 LOGSTASH_VERSION?=1.3.3
 VENDOR_DIR=vendor/bundle/jruby/1.9
 
-KAFKA_URL=https://archive.apache.org/dist/kafka/0.8.0/kafka_2.8.0-0.8.0.tar.gz
+KAFKA_URL=https://archive.apache.org/dist/kafka/0.8.1/kafka_2.8.0-0.8.1.tgz
 
 LOGSTASH_URL=https://download.elasticsearch.org/logstash/logstash/logstash-$(LOGSTASH_VERSION)-flatjar.jar
 
