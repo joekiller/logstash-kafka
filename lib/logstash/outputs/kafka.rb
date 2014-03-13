@@ -12,6 +12,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :topic_id, :validate => :string, :default => 'test'
   config :compression_codec, :validate => %w(none gzip snappy), :default => 'none'
   config :compressed_topics, :validate => :string, :default => ''
+  config :request_required_acks, :validate => [-1,0,1], :default => 0
 
   public
   def register
@@ -23,7 +24,8 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       :topic_id => @topic_id,
       :broker_list => @broker_list,
       :compression_codec => @compression_codec,
-      :compressed_topics => @compressed_topics
+      :compressed_topics => @compressed_topics,
+      :request_required_acks => @request_required_acks
     }
     @producer = Kafka::Producer.new(options)
     @producer.connect()

@@ -62,6 +62,7 @@ trivial to add it via jruby-kafka and then in the logstash input or output.
             :topic_id => ... # string (optional), default: "test"
             :compression_codec => ... # string (optional), one of ["none", "gzip", "snappy"], default: "none"
             :compressed_topics => ... # string (optional), default: ""
+            :request_required_acks => ... # number (optional), one of [-1, 0, 1], default: 0
         }
     }
 
