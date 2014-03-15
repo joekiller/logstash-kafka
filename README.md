@@ -6,7 +6,7 @@ For more info about logstash, see <http://logstash.net/>
 
 ## Dependencies
 
-* [Apache Kafka] version 0.8.1
+* [Apache Kafka] version 0.8.1 
 
 * [jruby-kafka] library.
 
@@ -20,7 +20,7 @@ Because this is a plugin to Logstash, it must be built.  Luckily for you, there 
 Most of the logic originated from logstash's make file so thank you everyone who had contributed to it to enable me to
 make this easy for you.
 
-The make file is currently configured to use JRuby version 1.7.9 and logstash version 1.3.3.
+The make file is currently configured to use JRuby version 1.7.9, logstash version 1.3.3, kafka version 0.8.1, and scala version 2.8.0.
 
 To simply build the logstash jar as is with Kafka enabled run:
 
@@ -29,6 +29,14 @@ To simply build the logstash jar as is with Kafka enabled run:
 To build the logstash jar with a different version of logstash do:
 
     # make flatjar LOGSTASH_VERSION=1.3.3
+
+To build with a different version of Kafka:
+
+    # make flatjar KAFKA_VERSION=0.8.0
+
+To build with a different version of Scala:
+
+    # make flatjar SCALA_VERSION=2.9.2
 
 ## Configuration for runtime
 
