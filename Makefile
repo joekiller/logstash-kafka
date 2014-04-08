@@ -105,7 +105,7 @@ vendor/jar/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz: | wget-or-curl vendor/
 	@echo "=> Fetching elasticsearch"
 	$(QUIET)$(DOWNLOAD_COMMAND) $@ $(ELASTICSEARCH_URL)/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz
 
-vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tar.gz: | wget-or-curl vendor/jar
+vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz: | wget-or-curl vendor/jar
 	@echo "=> Fetching kafka $(SCALA_VERSION)-$(KAFKA_VERSION)"
 	$(QUIET)$(DOWNLOAD_COMMAND) $@ $(KAFKA_URL)/$(KAFKA_VERSION)/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz
 
@@ -122,15 +122,12 @@ $(ELASTICSEARCH): $(ELASTICSEARCH).tar.gz | vendor/jar
 
 .PHONY: vendor-kafka
 vendor-kafka: $(KAFKA)
-$(KAFKA): $(KAFKA).tar.gz | vendor/jar
+$(KAFKA): $(KAFKA).tgz | vendor/jar
 	@echo "=> Pulling the jars out of $<"
 	$(QUIET)tar -C $(shell dirname $@) -xf $< $(TAR_OPTS) \
-		--strip-components 2 'kafka_$(SCALA_VERSION)-$(KAFKA_VERSION)/libs/*.jar'
+		'kafka_$(SCALA_VERSION)-$(KAFKA_VERSION)/libs/*.jar'
 	$(QUIET)tar -C $(shell dirname $@) -xf $< $(TAR_OPTS) \
-		--strip-components 1 'kafka_$(SCALA_VERSION)-$(KAFKA_VERSION)/*.jar'
-	$(QUIET)rm -rf vendor/jar/libs/
-	$(QUIET)rm -rf $@
-	$(QUIET)rm -rf vendor/jar/kafka*.tar.gz
+		'kafka_$(SCALA_VERSION)-$(KAFKA_VERSION)/*.jar'
 
 
 .PHONY: vendor-gems
@@ -180,7 +177,7 @@ prepare-tarball: $(LOGSTASH) $(JRUBY) $(KAFKA) vendor-gems
 prepare-tarball:
 	@echo "=> Preparing tarball"
 	$(QUIET)$(MAKE) $(WORKDIR)
-	$(QUIET)rsync -a --relative lib vendor/bundle/jruby vendor/jar --exclude 'vendor/bundle/jruby/1.9/cache' --exclude 'vendor/bundle/jruby/1.9/gems/*/doc' $(WORKDIR)
+	$(QUIET)rsync -a --relative lib vendor/bundle/jruby vendor/jar --exclude 'vendor/bundle/jruby/1.9/cache' --exclude 'vendor/bundle/jruby/1.9/gems/*/doc' --exclude 'vendor/jar/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz' --exclude 'vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz' $(WORKDIR)
 
 .PHONY: tarball
 tarball: | build/logstash-$(VERSION).tar.gz
