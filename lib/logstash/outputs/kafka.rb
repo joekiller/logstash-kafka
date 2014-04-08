@@ -1,6 +1,5 @@
 require 'logstash/namespace'
 require 'logstash/outputs/base'
-require 'jruby-kafka'
 
 class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config_name 'kafka'
@@ -20,6 +19,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
     Dir[jarpath].each do |jar|
       require jar
     end
+    require 'jruby-kafka'
     options = {
       :topic_id => @topic_id,
       :broker_list => @broker_list,
