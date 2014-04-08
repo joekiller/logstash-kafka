@@ -20,29 +20,39 @@ Because this is a plugin to Logstash, it must be built.  Luckily for you, there 
 Most of the logic originated from logstash's make file so thank you everyone who had contributed to it to enable me to
 make this easy for you.
 
-The make file is currently configured to use JRuby version 1.7.9, logstash version 1.3.3, kafka version 0.8.1, and scala version 2.8.0.
+The make file is currently configured to use JRuby version 1.7.11, logstash version 1.4.0, kafka version 0.8.1, and scala version 2.8.0.
 
 To simply build the logstash jar as is with Kafka enabled run:
 
-    # make flatjar
+    # make tarball
 
 To build the logstash jar with a different version of logstash do:
 
-    # make flatjar LOGSTASH_VERSION=1.3.3
+    # make tarball LOGSTASH_VERSION=1.4.0
 
 To build with a different version of Kafka:
 
-    # make flatjar KAFKA_VERSION=0.8.0
+    # make tarball KAFKA_VERSION=0.8.0
 
 To build with a different version of Scala:
 
-    # make flatjar SCALA_VERSION=2.9.2
+    # make tarball SCALA_VERSION=2.9.2
 
 ## Configuration for runtime
 
 jruby-kafka supports nearly all the configuration options of a Kafka high level consumer but some have been left out of
 this plugin simply because either it was a priority or I hadn't tested it yet.  If one isn't currently, it should be
 trivial to add it via jruby-kafka and then in the logstash input or output.
+
+## Running
+
+You should run this version of logstash the same as you would the normal logstash with:
+
+    # bin/logstash agent -f logstash.conf
+
+Contributed plugins can also still be installed using:
+
+    # bin/plugin install contrib
 
 ### Input
 
@@ -93,6 +103,4 @@ There are no tests are the current time.  Please feel free to submit a pull requ
 
 ## Notes
 
-The make file currently flattens the Kafka jar files and merges them into the uberjar.  I think this is overkill but
-it is the way it is working now.  Feel free to test other ways to make this all simpler.  I need to get it to
-"just work" currently so that is where we are now.
+The make file is updated to work with Logstash 1.4.0+.  RPM and DEB package building isn't supported at this time.
