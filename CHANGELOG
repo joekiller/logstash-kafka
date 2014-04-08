@@ -1,3 +1,6 @@
+0.4.1 (April 8, 2014)
+    # general
+    - updated to support Logstash 1.4.0
 0.4.0 (March 13, 2014)
     # general
     - updated to support Kafka 0.8.1
