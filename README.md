@@ -96,6 +96,18 @@ the output configuration something like:
             }
         }
     }
+    
+## Manual Install
+
+Those who wish to use this plugin in an existing Logstash 1.4.0+ installation can follow these instructions to integrate the plugin into their Logstash system.
+
+ 1. Download Logstash and extract as normal.  You should have a directory named `./logstash-1.4.0`.
+ 2. Download the Kafka binaries (0.8.1) with the Scala version of your choice (2.8.0) and extract as normal.  You should have a directory named `./kafka_2.8.0-0.8.1`.
+ 3. Download logstash-kafka v0.4.2 from [releases](https://github.com/joekiller/logstash-kafka/releases) and extract as normal.  You should have a directory named `./logstash-kafka-0.4.2`.
+ 3. Copy all jar files from `./kafka_2.8.0-0.8.1/libs` to `./logstash-1.4.0/vendor/jar/kafka_2.8.0-0.8.1/libs`.  You will need to make the `kafka_2.8.0-0.8.1` directory.
+ 4. From the logstash-kafka project, copy all the files in `./logstash-kafka/lib` to `./logstash-1.4.0/lib`.
+ 5. From the `./logstash-1.4.0` directory you need to run logstash-kafka's gembag.rb script to install the jruby-kafka library to the logstash's gemset: `GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar --1.9 ../logstash-kafka-0.4.2/gembag.rb ../logstash-kafka-0.4.2/logstash-kafka.gemspec`
+ 6. You should be able to run logstash with the logstash-kafka plugin now. `bin/logstash agent -f logstash.conf`. 
 
 ## Testing
 
