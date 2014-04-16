@@ -1,3 +1,26 @@
+0.5.0 (April 16, 2014)
+    # general
+    - update README to reflect new input and output options
+    # inputs
+    - added consumer_id
+    # outputs
+    - added options:
+        * request_required_acks
+        * serializer_class
+        * partitioner_class
+        * request_timeout_ms
+        * producer_type
+        * key_serializer_class
+        * message_send_max_retries
+        * retry_backoff_ms
+        * topic_metadata_refresh_interval_ms
+        * queue_buffering_max_ms
+        * queue_buffering_max_messages
+        * queue_enqueue_timeout_ms
+        * batch_num_messages
+        * send_buffer_bytes
+        * client_id
+    - see http://kafka.apache.org/documentation.html#producerconfigs for option details.
 0.4.2 (April 8, 2014)
     # general
     - updated README to reflect Logstash 1.4.0 support.

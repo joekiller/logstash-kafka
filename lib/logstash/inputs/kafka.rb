@@ -19,6 +19,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :consumer_restart_on_error, :validate => :boolean, :default => true
   config :consumer_restart_sleep_ms, :validate => :number, :default => 0
   config :decorate_events, :validate => :boolean, :default => true
+  config :consumer_id, :validate => :string, :default => nil
 
   public
   def register
@@ -35,7 +36,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :rebalance_backoff_ms => @rebalance_backoff_ms,
         :consumer_timeout_ms => @consumer_timeout_ms,
         :consumer_restart_on_error => @consumer_restart_on_error,
-        :consumer_restart_sleep_ms => @consumer_restart_sleep_ms
+        :consumer_restart_sleep_ms => @consumer_restart_sleep_ms,
+        :consumer_id => @consumer_id
     }
     if @reset_beginning == true
       options[:reset_beginning] = 'from-beginning'
