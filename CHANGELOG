@@ -1,3 +1,6 @@
+0.5.1 (May 27, 2014)
+    # inputs
+    - added fetch_message_max_bytes
 0.5.0 (April 16, 2014)
     # general
     - update README to reflect new input and output options
