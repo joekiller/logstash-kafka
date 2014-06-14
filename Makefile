@@ -159,11 +159,8 @@ $(LOGSTASH): $(LOGSTASH).tar.gz | build build/tarball
 		$(QUIET)tar -C $(shell dirname $@) -xf $< $(TAR_OPTS)
 		$(QUIET)rm -rf $<
 
-package: build/logstash-$(VERSION).tar.gz
-	(cd pkg; \
-		./build.sh ubuntu 12.04; \
-		./build.sh centos 6 \
-	)
+package: | prepare-tarball
+	pkg/build.sh centos 6
 
 build/tarball: | build
 	-$(QUIET)mkdir $@
