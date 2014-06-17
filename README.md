@@ -135,4 +135,10 @@ There are no tests are the current time.  Please feel free to submit a pull requ
 
 ## Notes
 
-The make file is updated to work with Logstash 1.4.0+.  RPM and DEB package building isn't supported at this time.
+The make file is updated to work with Logstash 1.4.0+.  DEB package building isn't supported at this time.
+
+To build an rpm
+
+    # make package
+
+Installing the resulting rpm after installing logstash from the elasticsearch repo will copy the kafka plugin and dependencies into `/opt/logstash`.
