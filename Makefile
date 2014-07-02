@@ -37,6 +37,8 @@ else
 TAR_OPTS=--wildcards
 endif
 
+TESTS=$(wildcard spec/*.rb spec/**/*.rb spec/**/**/*.rb)
+
 #spec/outputs/graphite.rb spec/outputs/email.rb)
 default:
 	@echo "Make targets you might be interested in:"
@@ -86,6 +88,7 @@ clean-vendor:
 copy-ruby-files: | build/ruby
 	@# Copy lib/ and test/ files to the root
 	$(QUIET)rsync -a --include "*/" --include "*.rb" --include "*.yaml" --exclude "*" ./lib/ ./build/ruby
+	$(QUIET)rsync -a ./spec ./build/ruby
 	@# Delete any empty directories copied by rsync.
 	$(QUIET)find ./build/ruby -type d -empty -delete
 
@@ -174,7 +177,7 @@ prepare-tarball: $(LOGSTASH) $(JRUBY) $(KAFKA) vendor-gems
 prepare-tarball:
 	@echo "=> Preparing tarball"
 	$(QUIET)$(MAKE) $(WORKDIR)
-	$(QUIET)rsync -a --relative lib vendor/bundle/jruby vendor/jar --exclude 'vendor/bundle/jruby/1.9/cache' --exclude 'vendor/bundle/jruby/1.9/gems/*/doc' --exclude 'vendor/jar/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz' --exclude 'vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz' $(WORKDIR)
+	$(QUIET)rsync -a --relative lib spec vendor/bundle/jruby vendor/jar --exclude 'vendor/bundle/jruby/1.9/cache' --exclude 'vendor/bundle/jruby/1.9/gems/*/doc' --exclude 'vendor/jar/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz' --exclude 'vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz' $(WORKDIR)
 
 .PHONY: tarball
 tarball: | build/logstash-$(VERSION).tar.gz
