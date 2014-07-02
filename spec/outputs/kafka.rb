@@ -4,7 +4,6 @@ require 'rspec'
 require 'insist'
 require 'logstash/namespace'
 require 'logstash/outputs/kafka'
-require 'logstash/errors'
 
 describe LogStash::Outputs::Kafka do
 
