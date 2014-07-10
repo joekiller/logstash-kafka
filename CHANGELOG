@@ -1,3 +1,10 @@
+0.5.2 (June 10, 2014)
+    # general
+    - updated logstash to version 1.4.2
+    - added Apache 2.0 License
+    # tests
+    - added tests for input and output (thank you suyograo)
+    - updated tests for logstash 1.4.2
 0.5.1 (May 27, 2014)
     # inputs
     - added fetch_message_max_bytes
