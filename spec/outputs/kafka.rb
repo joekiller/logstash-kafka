@@ -3,6 +3,7 @@
 require 'rspec'
 require 'insist'
 require 'logstash/namespace'
+require 'time'
 require 'logstash/outputs/kafka'
 
 describe LogStash::Outputs::Kafka do
@@ -23,10 +24,11 @@ describe LogStash::Outputs::Kafka do
   end
 
   it "should send logstash event to kafka broker" do
+    timestamp = Time.now
     expect_any_instance_of(Kafka::Producer)
     .to receive(:sendMsg)
-        .with("test", nil, "{\"message\":\"hello world\",\"host\":\"test\",\"@timestamp\":\"2014-07-01T17:08:12.544-07:00\",\"@version\":\"1\"}")
-    e = LogStash::Event.new({"message" => "hello world", "host" => "test", "@timestamp" => "2014-07-01T17:08:12.544-07:00"})
+        .with("test", nil, "{\"message\":\"hello world\",\"host\":\"test\",\"@timestamp\":\"#{timestamp.iso8601(3)}\",\"@version\":\"1\"}")
+    e = LogStash::Event.new({"message" => "hello world", "host" => "test", "@timestamp" => timestamp})
     kafka = LogStash::Outputs::Kafka.new
     kafka.register
     kafka.receive(e)
