@@ -1,3 +1,4 @@
+require 'zlib'
 require 'logstash/namespace'
 require 'logstash/outputs/base'
 
@@ -62,7 +63,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
 
     @codec.on_event do |event|
       begin
-        @producer.sendMsg(@topic_id,nil,event)
+        @producer.sendMsg(@topic_id, Zlib::crc32(event), event)
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka producer got shutdown signal')
       rescue => e
