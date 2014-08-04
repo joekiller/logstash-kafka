@@ -16,7 +16,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :partitioner_class, :validate => :string, :default => 'kafka.producer.DefaultPartitioner'
   config :request_timeout_ms, :validate => :number, :default => 10000
   config :producer_type, :validate => %w( sync async ), :default => 'sync'
-  config :key_serializer_class, :validate => :string, :default => nil
+  config :key_serializer_class, :validate => :string, :default => 'kafka.serializer.StringEncoder'
   config :message_send_max_retries, :validate => :number, :default => 3
   config :retry_backoff_ms, :validate => :number, :default => 100
   config :topic_metadata_refresh_interval_ms, :validate => :number, :default => 600 * 1000
