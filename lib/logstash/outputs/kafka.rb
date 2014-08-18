@@ -29,7 +29,9 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :send_buffer_bytes, :validate => :number, :default => 100 * 1024
   config :client_id, :validate => :string, :default => ""
 
-  config :logstash_stop_on_exception_repeat, :validate => :number, :default=>0 # stop logstash after an exception repeats for certain times, 0 for never stop  
+  config :logstash_stop_on_exception_repeat, :validate => :number, :default=>0 # stop logstash after an exception repeats for certain times, 0 for never stop
+  
+  
   public
   def register
     jarpath = File.join(File.dirname(__FILE__), "../../../vendor/jar/kafka*/libs/*.jar")
@@ -58,7 +60,9 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       :send_buffer_bytes => @send_buffer_bytes,
       :client_id => @client_id
     }
-      
+    
+    
+    
     @producer = Kafka::Producer.new(options)
     @producer.connect()
 
@@ -83,7 +87,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
                 @logger.error("Exception repeated over #{@logstash_stop_on_exception_repeat} times: ",
                              :exception => e)
                 finished
-                raise "Exception repeated over #{@logstash_stop_on_exception_repeat} times: #{{:exception => e}}"
+                raise LogStash::ShutdownSignal
             when 2..@logstash_stop_on_exception_repeat
                 @exception_repeats[e.to_s] -= 1
             else
