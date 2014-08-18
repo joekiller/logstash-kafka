@@ -4,7 +4,9 @@ require 'logstash/outputs/base'
 class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config_name 'kafka'
   milestone 1
-
+  
+  attr_accessor :exception_repeats
+  
   default :codec, 'json'
 
   config :broker_list, :validate => :string, :default => 'localhost:9092'
@@ -27,6 +29,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :send_buffer_bytes, :validate => :number, :default => 100 * 1024
   config :client_id, :validate => :string, :default => ""
 
+  config :logstash_stop_on_exception_repeat, :validate => :number, :default=>0 # stop logstash after an exception repeats for certain times, 0 for never stop  
   public
   def register
     jarpath = File.join(File.dirname(__FILE__), "../../../vendor/jar/kafka*/libs/*.jar")
@@ -55,11 +58,14 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       :send_buffer_bytes => @send_buffer_bytes,
       :client_id => @client_id
     }
+      
     @producer = Kafka::Producer.new(options)
     @producer.connect()
 
     @logger.info('Registering kafka producer', :topic_id => @topic_id, :broker_list => @broker_list)
 
+    @exception_repeats = {}
+    
     @codec.on_event do |event|
       begin
         @producer.sendMsg(@topic_id,nil,event)
@@ -68,8 +74,25 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       rescue => e
         @logger.warn('kafka producer threw exception, restarting',
                      :exception => e)
+        
+        if @logstash_stop_on_exception_repeat > 0
+            case @exception_repeats[e.to_s]
+            when nil
+                @exception_repeats[e.to_s] = @logstash_stop_on_exception_repeat
+            when 1
+                @logger.error("Exception repeated over #{@logstash_stop_on_exception_repeat} times: ",
+                             :exception => e)
+                finished
+                raise "Exception repeated over #{@logstash_stop_on_exception_repeat} times: #{{:exception => e}}"
+            when 2..@logstash_stop_on_exception_repeat
+                @exception_repeats[e.to_s] -= 1
+            else
+                @logger.warn('Exception repeater error')
+            end 
+        end
       end
     end
+    
   end # def register
 
   def receive(event)
@@ -82,3 +105,4 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   end
 
 end #class LogStash::Outputs::Kafka
+  
