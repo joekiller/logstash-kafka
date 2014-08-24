@@ -16,7 +16,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :partitioner_class, :validate => :string, :default => 'kafka.producer.DefaultPartitioner'
   config :request_timeout_ms, :validate => :number, :default => 10000
   config :producer_type, :validate => %w( sync async ), :default => 'sync'
-  config :key_serializer_class, :validate => :string, :default => nil
+  config :key_serializer_class, :validate => :string, :default => 'kafka.serializer.StringEncoder'
   config :message_send_max_retries, :validate => :number, :default => 3
   config :retry_backoff_ms, :validate => :number, :default => 100
   config :topic_metadata_refresh_interval_ms, :validate => :number, :default => 600 * 1000
@@ -26,6 +26,8 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :batch_num_messages, :validate => :number, :default => 200
   config :send_buffer_bytes, :validate => :number, :default => 100 * 1024
   config :client_id, :validate => :string, :default => ""
+  
+  config :key_format, :validate => :string, :default => nil
 
   public
   def register
@@ -53,7 +55,8 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       :queue_enqueue_timeout_ms => @queue_enqueue_timeout_ms,
       :batch_num_messages => @batch_num_messages,
       :send_buffer_bytes => @send_buffer_bytes,
-      :client_id => @client_id
+      :client_id => @client_id,
+      :key_format => @key_format
     }
     @producer = Kafka::Producer.new(options)
     @producer.connect()
@@ -62,7 +65,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
 
     @codec.on_event do |event|
       begin
-        @producer.sendMsg(@topic_id,nil,event)
+        @producer.sendMsg(@topic_id, @key, event)
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka producer got shutdown signal')
       rescue => e
@@ -78,7 +81,9 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       finished
       return
     end
+    @key = if @key_format.nil? then nil else event.sprintf(@key_format) end
     @codec.encode(event)
+    @key = nil
   end
 
 end #class LogStash::Outputs::Kafka
