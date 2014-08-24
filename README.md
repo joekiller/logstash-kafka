@@ -117,7 +117,7 @@ the output configuration something like:
         }
     }
 
-To specify a parition key for Kafka, you can configure format that will produce the key as a string.  For example, to parition by host:
+To specify a parition key for Kafka, configure a format that will produce the key as a string.  For example, to parition by host:
 
     # output {
         kafka {
