@@ -121,7 +121,7 @@ To specify a parition key for Kafka, configure a format that will produce the ke
 
     # output {
         kafka {
-            key_format => "%{host}"
+            partition_key_format => "%{host}"
         }
     }
 ## Manual Install

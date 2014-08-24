@@ -27,7 +27,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :send_buffer_bytes, :validate => :number, :default => 100 * 1024
   config :client_id, :validate => :string, :default => ""
   
-  config :key_format, :validate => :string, :default => nil
+  config :partition_key_format, :validate => :string, :default => nil
 
   public
   def register
@@ -56,7 +56,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       :batch_num_messages => @batch_num_messages,
       :send_buffer_bytes => @send_buffer_bytes,
       :client_id => @client_id,
-      :key_format => @key_format
+      :partition_key_format => @partition_key_format
     }
     @producer = Kafka::Producer.new(options)
     @producer.connect()
@@ -65,7 +65,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
 
     @codec.on_event do |event|
       begin
-        @producer.sendMsg(@topic_id, @key, event)
+        @producer.sendMsg(@topic_id, @partition_key, event)
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka producer got shutdown signal')
       rescue => e
@@ -81,9 +81,9 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       finished
       return
     end
-    @key = if @key_format.nil? then nil else event.sprintf(@key_format) end
+    @partition_key = if @partition_key_format.nil? then nil else event.sprintf(@partition_key_format) end
     @codec.encode(event)
-    @key = nil
+    @partition_key = nil
   end
 
 end #class LogStash::Outputs::Kafka
