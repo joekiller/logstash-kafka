@@ -92,7 +92,7 @@ See http://kafka.apache.org/documentation.html#producerconfigs for details about
             partitioner_class => ... # string (optional) default: "kafka.producer.DefaultPartitioner"
             request_timeout_ms => ... # number (optional) default: 10000
             producer_type => ... # string (optional), one of ["sync", "async"] default => 'sync'
-            key_serializer_class => ... # string (optional) default: nil
+            key_serializer_class => ... # string (optional) default: "kafka.serializer.StringEncoder"
             message_send_max_retries => ... # number (optional) default: 3
             retry_backoff_ms => ... # number (optional) default: 100
             topic_metadata_refresh_interval_ms => ... # number (optional) default: 600 * 1000
@@ -116,7 +116,14 @@ the output configuration something like:
             }
         }
     }
-    
+
+To specify a parition key for Kafka, you can configure format that will produce the key as a string.  For example, to parition by host:
+
+    # output {
+        kafka {
+            key_format => "%{host}"
+        }
+    }
 ## Manual Install
 
 Those who wish to use this plugin in an existing Logstash 1.4.0+ installation can follow these instructions to integrate the plugin into their Logstash system.
