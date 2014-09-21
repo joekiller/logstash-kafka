@@ -155,4 +155,8 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
     @codec.encode(event)
   end
 
+  def teardown
+    @producer.close
+  end
+
 end #class LogStash::Outputs::Kafka
