@@ -1,25 +1,70 @@
 require 'logstash/namespace'
 require 'logstash/inputs/base'
 
+# This input will read events from a Kafka topic. It uses the high level consumer API provided
+# by Kafka to read messages from the broker. It also maintains the state of what has been
+# consumed using Zookeeper. The default input codec is json
+#
+# The only required configuration is the topic name. By default it will connect to a Zookeeper
+# running on localhost. All the broker information is read from Zookeeper state
+#
+# Ideally you should have as many threads as the number of partitions for a perfect balance --
+# more threads than partitions means that some threads will be idle
+#
+# For more information see http://kafka.apache.org/documentation.html#theconsumer
+#
+# Kafka consumer configuration: http://kafka.apache.org/documentation.html#consumerconfigs
+#
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
   milestone 1
 
   default :codec, 'json'
 
+  # Specifies the ZooKeeper connection string in the form hostname:port where host and port are
+  # the host and port of a ZooKeeper server. You can also specify multiple hosts in the form
+  # hostname1:port1,hostname2:port2,hostname3:port3.
   config :zk_connect, :validate => :string, :default => 'localhost:2181'
+  # A string that uniquely identifies the group of consumer processes to which this consumer
+  # belongs. By setting the same group id multiple processes indicate that they are all part of
+  # the same consumer group.
   config :group_id, :validate => :string, :default => 'logstash'
-  config :topic_id, :validate => :string, :default => 'test'
+  # The topic to consume messages from
+  config :topic_id, :validate => :string, :required => true
+  # Specify whether to jump to beginning of the queue when there is no initial offset in
+  # ZooKeeper, or if an offset is out of range. If this is false, messages are consumed
+  # from the latest offset
   config :reset_beginning, :validate => :boolean, :default => false
+  # Number of threads to read from the partitions. Ideally you should have as many threads as the
+  # number of partitions for a perfect balance. More threads than partitions means that some
+  # threads will be idle. Less threads means a single thread could be consuming from more than
+  # one partition
   config :consumer_threads, :validate => :number, :default => 1
+  # Internal Logstash queue size used to hold events in memory after it has been read from Kafka
   config :queue_size, :validate => :number, :default => 20
+  # When a new consumer joins a consumer group the set of consumers attempt to "rebalance" the
+  # load to assign partitions to each consumer. If the set of consumers changes while this
+  # assignment is taking place the rebalance will fail and retry. This setting controls the
+  # maximum number of attempts before giving up.
   config :rebalance_max_retries, :validate => :number, :default => 4
+  # Backoff time between retries during rebalance.
   config :rebalance_backoff_ms, :validate => :number, :default => 2000
+  # Throw a timeout exception to the consumer if no message is available for consumption after
+  # the specified interval
   config :consumer_timeout_ms, :validate => :number, :default => -1
+  # Option to restart the consumer loop on error
   config :consumer_restart_on_error, :validate => :boolean, :default => true
+  # Time in millis to wait for consumer to restart after an error
   config :consumer_restart_sleep_ms, :validate => :number, :default => 0
-  config :decorate_events, :validate => :boolean, :default => true
+  # Option to add Kafka metadata like topic, message size to the event
+  config :decorate_events, :validate => :boolean, :default => false
+  # A unique id for the consumer; generated automatically if not set.
   config :consumer_id, :validate => :string, :default => nil
+  # The number of byes of messages to attempt to fetch for each topic-partition in each fetch
+  # request. These bytes will be read into memory for each partition, so this helps control
+  # the memory used by the consumer. The fetch request size must be at least as large as the
+  # maximum message size the server allows or else it is possible for the producer to send
+  # messages larger than the consumer can fetch.
   config :fetch_message_max_bytes, :validate => :number, :default => 1048576
 
   public

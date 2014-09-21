@@ -1,3 +1,6 @@
+0.6.0 (September 20, 2014)
+    # general
+    - updated to match elasticsearch/logstash current
 0.5.2 (June 10, 2014)
     # general
     - updated logstash to version 1.4.2
