@@ -88,7 +88,7 @@ See http://kafka.apache.org/documentation.html#consumerconfigs for details about
             consumer_timeout_ms => ... # number (optional), default: -1
             consumer_restart_on_error => ... # boolean (optional), default: true
             consumer_restart_sleep_ms => ... # number (optional), default: 0
-            decorate_events => ... # boolean (optional), default: true
+            decorate_events => ... # boolean (optional), default: false
             consumer_id => ... # string (optional) default: nil
             fetch_message_max_bytes => ... # number (optional) default: 1048576
         }
