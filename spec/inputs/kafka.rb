@@ -42,7 +42,7 @@ describe LogStash::Inputs::Kafka do
     class Kafka::Group
       public
       def run(a_numThreads, a_queue)
-        a_queue << "Kafka message"
+        a_queue << OpenStruct.new(:message => "Kafka message")
       end
     end
 
