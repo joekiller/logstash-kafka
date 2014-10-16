@@ -114,14 +114,14 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       begin
         while true
           event = @kafka_client_queue.pop
-          queue_event("#{event}",logstash_queue)
+          queue_event(event,logstash_queue)
         end
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka got shutdown signal')
         @consumer_group.shutdown
       end
       until @kafka_client_queue.empty?
-        queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+        queue_event(@kafka_client_queue.pop,logstash_queue)
       end
       @logger.info('Done running kafka input')
     rescue => e
@@ -139,15 +139,16 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   private
   def queue_event(msg, output_queue)
     begin
-      @codec.decode(msg) do |event|
+      message = "#{msg.message}"
+      @codec.decode(message) do |event|
         decorate(event)
         if @decorate_events
-          event['kafka'] = {:msg_size => msg.bytesize, :topic => @topic_id, :consumer_group => @group_id}
+          event['kafka'] = {:msg_size => message.bytesize, :topic => @topic_id, :consumer_group => @group_id, :key => "#{msg.key}"}
         end
         output_queue << event
       end # @codec.decode
     rescue => e # parse or event creation error
-      @logger.error('Failed to create event', :message => msg, :exception => e,
+      @logger.error('Failed to create event', :message => message, :exception => e,
                     :backtrace => e.backtrace)
     end # begin
   end # def queue_event
