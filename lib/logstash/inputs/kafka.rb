@@ -142,7 +142,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       @codec.decode(msg) do |event|
         decorate(event)
         if @decorate_events
-          event['kafka'] = {:msg_size => msg.bytesize, :topic => @topic_id, :consumer_group => @group_id}
+          event['kafka'] = {'msg_size' => msg.bytesize, 'topic' => @topic_id, 'consumer_group' => @group_id}
         end
         output_queue << event
       end # @codec.decode
