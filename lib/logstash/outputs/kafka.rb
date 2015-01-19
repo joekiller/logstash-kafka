@@ -108,6 +108,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
     Dir[jarpath].each do |jar|
       require jar
     end
+    LogStash::Logger.setup_log4j(@logger)
     require 'jruby-kafka'
     options = {
         :broker_list => @broker_list,
