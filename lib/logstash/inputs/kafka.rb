@@ -80,10 +80,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def register
-    jarpath = File.join(File.dirname(__FILE__), '../../../vendor/jar/kafka*/libs/*.jar')
-    Dir[jarpath].each do |jar|
-      require jar
-    end
     LogStash::Logger.setup_log4j(@logger)
     require 'jruby-kafka'
     options = {
