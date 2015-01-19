@@ -4,13 +4,9 @@
 #
 JRUBY_VERSION=1.7.11
 ELASTICSEARCH_VERSION=1.1.1
-SCALA_VERSION?=2.9.2
-KAFKA_VERSION?=0.8.1.1
 LOGSTASH_VERSION?=1.4.2
 LOGSTASH=build/tarball/logstash-$(LOGSTASH_VERSION)
 
-KAFKA_URL=https://archive.apache.org/dist/kafka
-KAFKA=vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION)
 LOGSTASH_URL=https://download.elasticsearch.org/logstash/logstash
 
 WITH_JRUBY=java -jar $(shell pwd)/$(JRUBY) -S
@@ -108,10 +104,6 @@ vendor/jar/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz: | wget-or-curl vendor/
 	@echo "=> Fetching elasticsearch"
 	$(QUIET)$(DOWNLOAD_COMMAND) $@ $(ELASTICSEARCH_URL)/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz
 
-vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz: | wget-or-curl vendor/jar
-	@echo "=> Fetching kafka $(SCALA_VERSION)-$(KAFKA_VERSION)"
-	$(QUIET)$(DOWNLOAD_COMMAND) $@ $(KAFKA_URL)/$(KAFKA_VERSION)/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz
-
 build/tarball/logstash-$(LOGSTASH_VERSION).tar.gz: | wget-or-curl build build/tarball
 	@echo "=> Fetching logstash $(LOGSTASH_VERSION)"
 	$(QUIET)$(DOWNLOAD_COMMAND) $@ $(LOGSTASH_URL)/logstash-$(LOGSTASH_VERSION).tar.gz
@@ -122,16 +114,6 @@ $(ELASTICSEARCH): $(ELASTICSEARCH).tar.gz | vendor/jar
 	@echo "=> Pulling the jars out of $<"
 	$(QUIET)tar -C $(shell dirname $@) -xf $< $(TAR_OPTS) --exclude '*sigar*' \
 		'elasticsearch-$(ELASTICSEARCH_VERSION)/lib/*.jar'
-
-.PHONY: vendor-kafka
-vendor-kafka: $(KAFKA)
-$(KAFKA): $(KAFKA).tgz | vendor/jar
-	@echo "=> Pulling the jars out of $<"
-	$(QUIET)tar -C $(shell dirname $@) -xf $< $(TAR_OPTS) \
-		'kafka_$(SCALA_VERSION)-$(KAFKA_VERSION)/libs/*.jar'
-	$(QUIET)tar -C $(shell dirname $@) -xf $< $(TAR_OPTS) \
-		'kafka_$(SCALA_VERSION)-$(KAFKA_VERSION)/*.jar'
-
 
 .PHONY: vendor-gems
 vendor-gems: | vendor/bundle
@@ -173,11 +155,11 @@ show:
 
 .PHONY: prepare-tarball
 prepare-tarball tarball zip: WORKDIR=build/tarball/logstash-$(VERSION)
-prepare-tarball: $(LOGSTASH) $(JRUBY) $(KAFKA) vendor-gems
+prepare-tarball: $(LOGSTASH) $(JRUBY) vendor-gems
 prepare-tarball:
 	@echo "=> Preparing tarball"
 	$(QUIET)$(MAKE) $(WORKDIR)
-	$(QUIET)rsync -a --relative lib spec vendor/bundle/jruby vendor/jar --exclude 'vendor/bundle/jruby/1.9/cache' --exclude 'vendor/bundle/jruby/1.9/gems/*/doc' --exclude 'vendor/jar/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz' --exclude 'vendor/jar/kafka_$(SCALA_VERSION)-$(KAFKA_VERSION).tgz' $(WORKDIR)
+	$(QUIET)rsync -a --relative lib spec vendor/bundle/jruby vendor/jar --exclude 'vendor/bundle/jruby/1.9/cache' --exclude 'vendor/bundle/jruby/1.9/gems/*/doc' --exclude 'vendor/jar/elasticsearch-$(ELASTICSEARCH_VERSION).tar.gz' $(WORKDIR)
 
 .PHONY: tarball
 tarball: | build/logstash-$(VERSION).tar.gz

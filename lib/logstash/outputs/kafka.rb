@@ -1,5 +1,6 @@
 require 'logstash/namespace'
 require 'logstash/outputs/base'
+require 'jruby-kafka'
 
 # Write events to a Kafka topic. This uses the Kafka Producer API to write messages to a topic on
 # the broker.
@@ -105,7 +106,6 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   public
   def register
     LogStash::Logger.setup_log4j(@logger)
-    require 'jruby-kafka'
     options = {
         :broker_list => @broker_list,
         :compression_codec => @compression_codec,

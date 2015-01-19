@@ -1,5 +1,6 @@
 require 'logstash/namespace'
 require 'logstash/inputs/base'
+require 'jruby-kafka'
 
 # This input will read events from a Kafka topic. It uses the high level consumer API provided
 # by Kafka to read messages from the broker. It also maintains the state of what has been
@@ -81,7 +82,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   public
   def register
     LogStash::Logger.setup_log4j(@logger)
-    require 'jruby-kafka'
     options = {
         :zk_connect => @zk_connect,
         :group_id => @group_id,
