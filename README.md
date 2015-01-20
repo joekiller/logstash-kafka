@@ -30,30 +30,51 @@ I will continue helping with the plugin and readying for the next version of Kaf
 [Apache Kafka]: http://kafka.apache.org/
 [jruby-kafka]: https://github.com/joekiller/jruby-kafka
 
-## Building
+## Building Logstash Tarball
 
 Because this is a plugin to Logstash, it must be built.  Luckily for you, there is a make file that handles all of this.
 
 Most of the logic originated from logstash's make file so thank you everyone who had contributed to it to enable me to
 make this easy for you.
 
-The make file is currently configured to use JRuby version 1.7.11, logstash version 1.4.0, kafka version 0.8.1, and scala version 2.8.0.
-
 To simply build the logstash jar as is with Kafka enabled run:
 
     # make tarball
 
-To build the logstash jar with a different version of logstash do:
+## Building Logstash-Kafka RPM
 
-    # make tarball LOGSTASH_VERSION=1.4.0
+**Note that this doesn't build a logstash RPM but an RPM that will install the logstash-kafka libraries on top of an existing logstash installation**
 
-To build with a different version of Kafka:
+To build an rpm
 
-    # make tarball KAFKA_VERSION=0.8.0
+    # make package
 
-To build with a different version of Scala:
+Installing the resulting rpm after installing logstash from the elasticsearch repo will copy the kafka plugin and dependencies into `/opt/logstash`.
 
-    # make tarball SCALA_VERSION=2.9.2
+
+## Building Logstash-Kafka Gem
+
+You can build the gem file and then install it to logstash.
+
+    # gem build logstash-kafka.gemspec
+
+## Installing Gem to Logstash
+
+You can install your own build logstash-kafka gem or use the one published to Rubygems.
+
+### Rubygems Logstash-Kafka install
+
+    # cd /path/to/logstash
+    # export GEM_HOME=vendor/bundle/jruby/1.9
+    # java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka
+
+### Manual Logstash-Kafka Gem Install
+
+As root or using sudo:
+
+    # cd /path/to/logstash
+    # GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka-0.7.0-java.gem
+    # cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/lib/logstash/* lib/logstash/
 
 ## Configuration for runtime
 
@@ -134,18 +155,6 @@ the output configuration something like:
         }
     }
     
-## Manual Install
-
-Those who wish to use this plugin in an existing Logstash 1.4.0+ installation can follow these instructions to integrate the plugin into their Logstash system.
-
- 1. Download Logstash and extract as normal.  You should have a directory named `./logstash-1.4.0`.
- 2. Download the Kafka binaries (0.8.1) with the Scala version of your choice (2.8.0) and extract as normal.  You should have a directory named `./kafka_2.8.0-0.8.1`.
- 3. Download logstash-kafka v0.4.2 from [releases](https://github.com/joekiller/logstash-kafka/releases) and extract as normal.  You should have a directory named `./logstash-kafka-0.4.2`.
- 3. Copy all jar files from `./kafka_2.8.0-0.8.1/libs` to `./logstash-1.4.0/vendor/jar/kafka_2.8.0-0.8.1/libs`.  You will need to make the `kafka_2.8.0-0.8.1` directory.
- 4. From the logstash-kafka project, copy all the files in `./logstash-kafka/lib` to `./logstash-1.4.0/lib`.
- 5. From the `./logstash-1.4.0` directory you need to run logstash-kafka's gembag.rb script to install the jruby-kafka library to the logstash's gemset: `GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar --1.9 ../logstash-kafka-0.4.2/gembag.rb ../logstash-kafka-0.4.2/logstash-kafka.gemspec`
- 6. You should be able to run logstash with the logstash-kafka plugin now. `bin/logstash agent -f logstash.conf`. 
-
 ## Testing
 
 There are no tests are the current time.  Please feel free to submit a pull request.
@@ -153,9 +162,3 @@ There are no tests are the current time.  Please feel free to submit a pull requ
 ## Notes
 
 The make file is updated to work with Logstash 1.4.0+.  DEB package building isn't supported at this time.
-
-To build an rpm
-
-    # make package
-
-Installing the resulting rpm after installing logstash from the elasticsearch repo will copy the kafka plugin and dependencies into `/opt/logstash`.
