@@ -47,6 +47,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # and starts at the smallest offset. If other group members are present reset_beginning will not
   # work and the consumer threads will rejoin the consumer group.
   config :reset_beginning, :validate => :boolean, :default => false
+  # "smallest" or "largest" - (optional, default 'largest') If the consumer does not already 
+  # have an established offset or offset is invalid, start with the earliest message present in the log (smallest) or 
+  # after the last message in the log (largest).
+  config :auto_offset_reset, :validate => :string, :default => 'largest'
   # Number of threads to read from the partitions. Ideally you should have as many threads as the
   # number of partitions for a perfect balance. More threads than partitions means that some
   # threads will be idle. Less threads means a single thread could be consuming from more than
@@ -86,6 +90,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :zk_connect => @zk_connect,
         :group_id => @group_id,
         :topic_id => @topic_id,
+        :auto_offset_reset => @auto_offset_reset,
         :rebalance_max_retries => @rebalance_max_retries,
         :rebalance_backoff_ms => @rebalance_backoff_ms,
         :consumer_timeout_ms => @consumer_timeout_ms,
