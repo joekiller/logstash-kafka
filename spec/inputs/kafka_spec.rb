@@ -32,11 +32,29 @@ end
 
 describe 'inputs/kafka' do
   let (:kafka_config) {{'topic_id' => 'test'}}
+  let (:empty_config) {{}}
+  let (:bad_kafka_config) {{'topic_id' => 'test', 'white_list' => 'other_topic'}}
+  let (:white_list_kafka_config) {{'white_list' => 'other_topic'}}
   let (:decorated_kafka_config) {{'topic_id' => 'test', 'decorate_events' => true}}
 
   it "should register" do
     input = LogStash::Plugin.lookup("input", "kafka").new(kafka_config)
     expect {input.register}.to_not raise_error
+  end
+
+  it "should register with whitelist" do
+    input = LogStash::Plugin.lookup("input", "kafka").new(white_list_kafka_config)
+    expect {input.register}.to_not raise_error
+  end
+
+  it "should fail with multiple topic configs" do
+    input = LogStash::Plugin.lookup("input", "kafka").new(empty_config)
+    expect {input.register}.to raise_error
+  end
+
+  it "should fail without topic configs" do
+    input = LogStash::Plugin.lookup("input", "kafka").new(bad_kafka_config)
+    expect {input.register}.to raise_error
   end
 
   it 'should populate kafka config with default values' do

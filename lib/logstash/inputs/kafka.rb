@@ -6,7 +6,7 @@ require 'jruby-kafka'
 # by Kafka to read messages from the broker. It also maintains the state of what has been
 # consumed using Zookeeper. The default input codec is json
 #
-# The only required configuration is the topic name. By default it will connect to a Zookeeper
+# You must configure topic_id, white_list or black_list. By default it will connect to a Zookeeper
 # running on localhost. All the broker information is read from Zookeeper state
 #
 # Ideally you should have as many threads as the number of partitions for a perfect balance --
@@ -37,7 +37,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # the same consumer group.
   config :group_id, :validate => :string, :default => 'logstash'
   # The topic to consume messages from
-  config :topic_id, :validate => :string, :required => true
+  config :topic_id, :validate => :string, :default => nil
+  # Whitelist of topics to include for consumption.
+  config :white_list, :validate => :string, :default => nil
+  # Blacklist of topics to exclude from consumption.
+  config :black_list, :validate => :string, :default => nil
   # Reset the consumer group to start at the earliest message present in the log by clearing any
   # offsets for the group stored in Zookeeper. This is destructive! Must be used in conjunction
   # with auto_offset_reset => 'smallest'
@@ -92,11 +96,19 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :consumer_restart_on_error => @consumer_restart_on_error,
         :consumer_restart_sleep_ms => @consumer_restart_sleep_ms,
         :consumer_id => @consumer_id,
-        :fetch_message_max_bytes => @fetch_message_max_bytes
+        :fetch_message_max_bytes => @fetch_message_max_bytes,
+        :allow_topics => @white_list,
+        :filter_topics => @black_list
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
     end # if :reset_beginning
+    topic_or_filter = [@topic_id, @white_list, @black_list].compact
+    if topic_or_filter.count == 0
+      raise('topic_id, white_list or black_list required.')
+    elsif topic_or_filter.count > 1
+      raise('Invalid combination of topic_id, white_list or black_list. Use only one.')
+    end
     @kafka_client_queue = SizedQueue.new(@queue_size)
     @consumer_group = create_consumer_group(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
