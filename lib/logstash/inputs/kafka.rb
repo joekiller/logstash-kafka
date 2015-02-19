@@ -50,7 +50,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # "smallest" or "largest" - (optional, default 'largest') If the consumer does not already 
   # have an established offset or offset is invalid, start with the earliest message present in the log (smallest) or 
   # after the last message in the log (largest).
-  config :auto_offset_reset, :validate => :string, :default => 'largest'
+  config :auto_offset_reset, :validate => %w( largest smallest ), :default => 'largest'
   # Number of threads to read from the partitions. Ideally you should have as many threads as the
   # number of partitions for a perfect balance. More threads than partitions means that some
   # threads will be idle. Less threads means a single thread could be consuming from more than
