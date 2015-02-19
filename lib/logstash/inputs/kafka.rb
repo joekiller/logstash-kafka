@@ -153,10 +153,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   private
   def queue_event(message_and_metadata, output_queue)
     begin
-      @codec.decode(message_and_metadata.message) do |event|
+      @codec.decode("#{message_and_metadata.message}") do |event|
         decorate(event)
         if @decorate_events
-          event['kafka'] = {'msg_size' => message_and_metadata.message.bytesize,
+          event['kafka'] = {'msg_size' => event['message'].bytesize,
                             'topic' => message_and_metadata.topic,
                             'consumer_group' => @group_id,
                             'partition' => message_and_metadata.partition,
@@ -165,7 +165,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         output_queue << event
       end # @codec.decode
     rescue => e # parse or event creation error
-      @logger.error('Failed to create event', :message => message_and_metadata.message, :exception => e,
+      @logger.error('Failed to create event', :message => "#{message_and_metadata.message}", :exception => e,
                     :backtrace => e.backtrace)
     end # begin
   end # def queue_event
