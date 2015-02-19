@@ -78,6 +78,7 @@ describe 'inputs/kafka' do
     insist { e['kafka']['consumer_group'] } == 'logstash'
     insist { e['kafka']['msg_size'] } == 13
     insist { e['kafka']['partition'] } == 0
+    insist { e['kafka']['key'] } == nil
   end
 
 end

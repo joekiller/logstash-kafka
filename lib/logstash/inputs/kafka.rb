@@ -152,7 +152,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
           event['kafka'] = {'msg_size' => message_and_metadata.message.bytesize,
                             'topic' => message_and_metadata.topic,
                             'consumer_group' => @group_id,
-                            'partition' => message_and_metadata.partition}
+                            'partition' => message_and_metadata.partition,
+                            'key' => message_and_metadata.key}
         end
         output_queue << event
       end # @codec.decode
