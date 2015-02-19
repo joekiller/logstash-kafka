@@ -38,14 +38,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :group_id, :validate => :string, :default => 'logstash'
   # The topic to consume messages from
   config :topic_id, :validate => :string, :required => true
-  # Specify whether to jump to beginning of the queue when there is no initial offset in
-  # ZooKeeper, or if an offset is out of range. If this is false, messages are consumed
-  # from the latest offset
-  #
-  # If reset_beginning is true, the consumer will check ZooKeeper to see if any other group members
-  # are present and active. If not, the consumer deletes any offset information in the ZooKeeper
-  # and starts at the smallest offset. If other group members are present reset_beginning will not
-  # work and the consumer threads will rejoin the consumer group.
+  # Reset the consumer group to start at the earliest message present in the log by clearing any
+  # offsets for the group stored in Zookeeper. This is destructive! Must be used in conjunction
+  # with auto_offset_reset => 'smallest'
   config :reset_beginning, :validate => :boolean, :default => false
   # "smallest" or "largest" - (optional, default 'largest') If the consumer does not already 
   # have an established offset or offset is invalid, start with the earliest message present in the log (smallest) or 
