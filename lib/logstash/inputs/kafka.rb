@@ -103,7 +103,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       options[:reset_beginning] = 'from-beginning'
     end # if :reset_beginning
     @kafka_client_queue = SizedQueue.new(@queue_size)
-    @consumer_group = Kafka::Group.new(options)
+    @consumer_group = create_consumer_group(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
   end # def register
 
@@ -116,14 +116,14 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       begin
         while true
           event = @kafka_client_queue.pop
-          queue_event("#{event}",logstash_queue)
+          queue_event(event, logstash_queue)
         end
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka got shutdown signal')
         @consumer_group.shutdown
       end
       until @kafka_client_queue.empty?
-        queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+        queue_event(@kafka_client_queue.pop,logstash_queue)
       end
       @logger.info('Done running kafka input')
     rescue => e
@@ -139,17 +139,25 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   end # def run
 
   private
-  def queue_event(msg, output_queue)
+  def create_consumer_group(options)
+    Kafka::Group.new(options)
+  end
+
+  private
+  def queue_event(message_and_metadata, output_queue)
     begin
-      @codec.decode(msg) do |event|
+      @codec.decode(message_and_metadata.message) do |event|
         decorate(event)
         if @decorate_events
-          event['kafka'] = {'msg_size' => msg.bytesize, 'topic' => @topic_id, 'consumer_group' => @group_id}
+          event['kafka'] = {'msg_size' => message_and_metadata.message.bytesize,
+                            'topic' => message_and_metadata.topic,
+                            'consumer_group' => @group_id,
+                            'partition' => message_and_metadata.partition}
         end
         output_queue << event
       end # @codec.decode
     rescue => e # parse or event creation error
-      @logger.error('Failed to create event', :message => msg, :exception => e,
+      @logger.error('Failed to create event', :message => message_and_metadata.message, :exception => e,
                     :backtrace => e.backtrace)
     end # begin
   end # def queue_event
