@@ -60,15 +60,23 @@ You can build the gem file and then install it to logstash.
 
 ## Installing Gem to Logstash
 
-You can install your own build logstash-kafka gem or use the one published to Rubygems.
+You can install your own build logstash-kafka gem or use the one published to Rubygems. This is the easiest way to manually install the plugin regardless of if you are using Windows, Linux, BSD, etc.
 
-### Rubygems Logstash-Kafka install
+### Rubygems Logstash-Kafka install for Logstash 1.5+
+
+    # bin/plugin install logstash-kafka
+    
+or .gem install
+    
+    # bin/plugin install /path/to/logstash-kafka-X.Y.Z-jar.gem
+
+### Rubygems Logstash-Kafka install on Logstash 1.4.2
 
     # cd /path/to/logstash
     # GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka
     # cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/lib/logstash/* lib/logstash/
 
-### Manual Logstash-Kafka Gem Install
+### Manual Logstash-Kafka Gem Install on Logstash 1.4.2
 
 As root or using sudo:
 
@@ -86,9 +94,9 @@ trivial to add it via jruby-kafka and then in the logstash input or output.
 
 You should run this version of logstash the same as you would the normal logstash with:
 
-    # bin/logstash agent -f logstash.conf
+    # bin/logstash -f logstash.conf
 
-Contributed plugins can also still be installed using:
+Contributed plugins can also still be installed for Logstash 1.4+ using:
 
     # bin/plugin install contrib
 
