@@ -102,9 +102,9 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   # The client id is a user-specified string sent in each request to help trace calls. It should
   # logically identify the application making the request.
   config :client_id, :validate => :string, :default => ""
-  # # Provides a way to specify a partition key as a string. To specify a parition key for 
+  # # Provides a way to specify a partition key as a string. To specify a partition key for
   # Kafka, configure a format that will produce the key as a string. Defaults key_serializer to 
-  # kafka.serializer.StringEncoder to match. For example, to parition by host:
+  # kafka.serializer.StringEncoder to match. For example, to partition by host:
   #     output {
   #       kafka {
   #           partition_key_format => "%{host}"
