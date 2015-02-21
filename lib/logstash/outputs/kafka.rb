@@ -64,7 +64,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   # throughput) but open the possibility of a failure of the client machine dropping unsent data.
   config :producer_type, :validate => %w( sync async ), :default => 'sync'
   # The serializer class for keys (defaults to the same as for messages if nothing is given)
-  config :key_serializer_class, :validate => :string, :default => nil
+  config :key_serializer_class, :validate => :string, :default => 'kafka.serializer.StringEncoder'
   # This property will cause the producer to automatically retry a failed send request. This
   # property specifies the number of retries when such failures occur. Note that setting a
   # non-zero value here can lead to duplicates in the case of network errors that cause a message
@@ -101,30 +101,40 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   config :send_buffer_bytes, :validate => :number, :default => 100 * 1024
   # The client id is a user-specified string sent in each request to help trace calls. It should
   # logically identify the application making the request.
-  config :client_id, :validate => :string, :default => ''
+  config :client_id, :validate => :string, :default => ""
+  # # Provides a way to specify a partition key as a string. To specify a parition key for 
+  # Kafka, configure a format that will produce the key as a string. Defaults key_serializer to 
+  # kafka.serializer.StringEncoder to match. For example, to parition by host:
+  #     output {
+  #       kafka {
+  #           partition_key_format => "%{host}"
+  #       }
+  #     }
+  config :partition_key_format, :validate => :string, :default => nil
 
   public
   def register
     LogStash::Logger.setup_log4j(@logger)
     options = {
-        :broker_list => @broker_list,
-        :compression_codec => @compression_codec,
-        :compressed_topics => @compressed_topics,
-        :request_required_acks => @request_required_acks,
-        :serializer_class => @serializer_class,
-        :partitioner_class => @partitioner_class,
-        :request_timeout_ms => @request_timeout_ms,
-        :producer_type => @producer_type,
-        :key_serializer_class => @key_serializer_class,
-        :message_send_max_retries => @message_send_max_retries,
-        :retry_backoff_ms => @retry_backoff_ms,
-        :topic_metadata_refresh_interval_ms => @topic_metadata_refresh_interval_ms,
-        :queue_buffering_max_ms => @queue_buffering_max_ms,
-        :queue_buffering_max_messages => @queue_buffering_max_messages,
-        :queue_enqueue_timeout_ms => @queue_enqueue_timeout_ms,
-        :batch_num_messages => @batch_num_messages,
-        :send_buffer_bytes => @send_buffer_bytes,
-        :client_id => @client_id
+      :broker_list => @broker_list,
+      :compression_codec => @compression_codec,
+      :compressed_topics => @compressed_topics,
+      :request_required_acks => @request_required_acks,
+      :serializer_class => @serializer_class,
+      :partitioner_class => @partitioner_class,
+      :request_timeout_ms => @request_timeout_ms,
+      :producer_type => @producer_type,
+      :key_serializer_class => @key_serializer_class,
+      :message_send_max_retries => @message_send_max_retries,
+      :retry_backoff_ms => @retry_backoff_ms,
+      :topic_metadata_refresh_interval_ms => @topic_metadata_refresh_interval_ms,
+      :queue_buffering_max_ms => @queue_buffering_max_ms,
+      :queue_buffering_max_messages => @queue_buffering_max_messages,
+      :queue_enqueue_timeout_ms => @queue_enqueue_timeout_ms,
+      :batch_num_messages => @batch_num_messages,
+      :send_buffer_bytes => @send_buffer_bytes,
+      :client_id => @client_id,
+      :partition_key_format => @partition_key_format
     }
     @producer = Kafka::Producer.new(options)
     @producer.connect
@@ -133,7 +143,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
 
     @codec.on_event do |event, data|
       begin
-        @producer.send_msg(event.sprintf(@topic_id),nil,data)
+        @producer.send_msg(event.sprintf(@topic_id),@partition_key,data)
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka producer got shutdown signal')
       rescue => e
@@ -149,9 +159,11 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       finished
       return
     end
+    @partition_key = if @partition_key_format.nil? then nil else event.sprintf(@partition_key_format) end
     @codec.encode(event)
+    @partition_key = nil
   end
-
+    
   def teardown
     @producer.close
   end
