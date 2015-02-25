@@ -133,8 +133,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       :queue_enqueue_timeout_ms => @queue_enqueue_timeout_ms,
       :batch_num_messages => @batch_num_messages,
       :send_buffer_bytes => @send_buffer_bytes,
-      :client_id => @client_id,
-      :partition_key_format => @partition_key_format
+      :client_id => @client_id
     }
     @producer = Kafka::Producer.new(options)
     @producer.connect
