@@ -1,5 +1,8 @@
 # logstash-kafka
 
+### Status
+[![Build Status](https://travis-ci.org/joekiller/logstash-kafka.svg?branch=master)](https://travis-ci.org/joekiller/logstash-kafka)
+
 This project implements Kafka 0.8.1.1 inputs and outputs for logstash.
 
 For more info about logstash, see <http://logstash.net/>
