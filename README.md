@@ -65,9 +65,9 @@ You can install your own build logstash-kafka gem or use the one published to Ru
 ### Rubygems Logstash-Kafka install for Logstash 1.5+
 
     # bin/plugin install logstash-kafka
-    
+
 or .gem install
-    
+
     # bin/plugin install /path/to/logstash-kafka-X.Y.Z-jar.gem
 
 ### Rubygems Logstash-Kafka install on Logstash 1.4.2
