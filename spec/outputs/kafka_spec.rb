@@ -1,5 +1,4 @@
-# encoding: utf-8
-require "logstash/devutils/rspec/spec_helper"
+require "test_utils"
 require 'logstash/outputs/kafka'
 require 'jruby-kafka'
 require 'json'
@@ -7,7 +6,7 @@ require 'json'
 describe "outputs/kafka" do
   let (:simple_kafka_config) {{'topic_id' => 'test'}}
   let (:event) { LogStash::Event.new({'message' => 'hello', 'topic_name' => 'my_topic', 'host' => '172.0.0.1',
-                                      '@timestamp' => LogStash::Timestamp.now}) }
+                                      '@timestamp' => "2011-08-18T13:00:14.000Z"}) }
 
   context 'when initializing' do
     it "should register" do
@@ -31,26 +30,6 @@ describe "outputs/kafka" do
       expect_any_instance_of(Kafka::Producer).to receive(:send_msg)
                                                      .with(simple_kafka_config['topic_id'], nil, event.to_hash.to_json)
       kafka = LogStash::Outputs::Kafka.new(simple_kafka_config)
-      kafka.register
-      kafka.receive(event)
-    end
-
-    it 'should support Event#sprintf placeholders in topic_id' do
-      topic_field = 'topic_name'
-      expect_any_instance_of(Kafka::Producer).to receive(:send_msg)
-                                                     .with(event[topic_field], nil, event.to_hash.to_json)
-      kafka = LogStash::Outputs::Kafka.new({'topic_id' => "%{#{topic_field}}"})
-      kafka.register
-      kafka.receive(event)
-    end
-
-    it 'should support Event#sprintf placeholders in partition_key_format' do
-      partition_field = 'host'
-      expect_any_instance_of(Kafka::Producer).to receive(:send_msg)
-                                                     .with(simple_kafka_config['topic_id'],
-                                                           event[partition_field], event.to_hash.to_json)
-      kafka = LogStash::Outputs::Kafka.new({'topic_id' => simple_kafka_config['topic_id'],
-                                            'partition_key_format' => "%{#{partition_field}}"})
       kafka.register
       kafka.receive(event)
     end

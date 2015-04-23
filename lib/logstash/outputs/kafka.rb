@@ -102,15 +102,6 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
   # The client id is a user-specified string sent in each request to help trace calls. It should
   # logically identify the application making the request.
   config :client_id, :validate => :string, :default => ""
-  # # Provides a way to specify a partition key as a string. To specify a partition key for
-  # Kafka, configure a format that will produce the key as a string. Defaults key_serializer to 
-  # kafka.serializer.StringEncoder to match. For example, to partition by host:
-  #     output {
-  #       kafka {
-  #           partition_key_format => "%{host}"
-  #       }
-  #     }
-  config :partition_key_format, :validate => :string, :default => nil
 
   public
   def register
@@ -140,9 +131,9 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
 
     @logger.info('Registering kafka producer', :topic_id => @topic_id, :broker_list => @broker_list)
 
-    @codec.on_event do |event, data|
+    @codec.on_event do |event|
       begin
-        @producer.send_msg(event.sprintf(@topic_id),@partition_key,data)
+        @producer.send_msg(@topic_id,nil,event)
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka producer got shutdown signal')
       rescue => e
@@ -158,9 +149,7 @@ class LogStash::Outputs::Kafka < LogStash::Outputs::Base
       finished
       return
     end
-    @partition_key = if @partition_key_format.nil? then nil else event.sprintf(@partition_key_format) end
     @codec.encode(event)
-    @partition_key = nil
   end
     
   def teardown

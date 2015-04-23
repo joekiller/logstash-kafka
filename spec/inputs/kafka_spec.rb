@@ -1,5 +1,4 @@
-# encoding: utf-8
-require "logstash/devutils/rspec/spec_helper"
+require "test_utils"
 require "logstash/inputs/kafka"
 require 'jruby-kafka'
 

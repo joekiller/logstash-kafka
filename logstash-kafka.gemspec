@@ -2,12 +2,12 @@
 
 Gem::Specification.new do |s|
   s.name          =  'logstash-kafka'
-  s.version       = '0.7.5.beta'
+  s.version       = '0.8.0.beta'
   s.platform      = 'java'
   s.authors       = ['Joseph Lawson']
   s.email         = ['joe@joekiller.com']
   s.description   = 'Kafka input and output plugins for Logstash'
-  s.summary       = 'Provides input and output plugin functionality for Logstash'
+  s.summary       = 'Provides input and output plugin functionality for Logstash 1.4.X'
   s.homepage      = 'https://github.com/joekiller/logstash-kafka'
   s.license       = 'Apache 2.0'
   s.platform      = 'java'
@@ -17,12 +17,5 @@ Gem::Specification.new do |s|
 
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
 
-  # Gem dependencies
-  s.add_runtime_dependency "logstash-core", '>= 1.4.0', '< 2.0.0'
-  s.add_runtime_dependency 'logstash-codec-json'
-  s.add_runtime_dependency 'logstash-codec-plain'
-  s.add_runtime_dependency 'jruby-kafka', ['>= 1.1.0', '< 2.0.0']
-
-  s.add_development_dependency 'jar-dependencies'
-  s.add_development_dependency 'logstash-devutils'
+  s.add_runtime_dependency 'jruby-kafka', ['= 0.2.1']
 end

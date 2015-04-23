@@ -3,13 +3,13 @@
 ### Status
 [![Build Status](https://travis-ci.org/joekiller/logstash-kafka.svg?branch=master)](https://travis-ci.org/joekiller/logstash-kafka)
 
-This project implements Kafka 0.8.1.1 inputs and outputs for logstash.
+This project implements Kafka 0.8.2.1 inputs and outputs for logstash 1.4.X only. For 1.5 support read below.
 
 For more info about logstash, see <http://logstash.net/>
 
-logstash-kafka is now part of the logstash core project.  It will be released with the 1.5 version of logstash.  Thank
-you for your support.  My goal is to close out tickets here but for the most part, issues and problems should be
-resolved via:
+logstash-kafka has been intergrated into [logstash-input-kafka](https://github.com/logstash-plugins/logstash-input-kafka) and [logstash-output-kafka](https://github.com/logstash-plugins/logstash-output-kafka).  
+It will be released with the 1.5 version of logstash.  Thank you for your support.  My goal is to close out tickets here 
+but for the most part, issues and problems should be resolved via:
 
   * https://groups.google.com/forum/#!forum/logstash-users The logstash-users mailing list is extremely active and I 
   participate especially in Kafka troubleshooting/discussion there.
@@ -26,7 +26,7 @@ I will continue helping with the plugin and readying for the next version of Kaf
 
 ## Dependencies
 
-* [Apache Kafka] version 0.8.1.1 
+* [Apache Kafka] version 0.8.2.1 
 
 * [jruby-kafka] library.
 
@@ -67,11 +67,7 @@ You can install your own build logstash-kafka gem or use the one published to Ru
 
 ### Rubygems Logstash-Kafka install for Logstash 1.5+
 
-    # bin/plugin install logstash-kafka
-
-or .gem install
-
-    # bin/plugin install /path/to/logstash-kafka-X.Y.Z-jar.gem
+Please see [logstash-input-kafka] and [logstash-output-kafka] for Logstash 1.5+
 
 ### Rubygems Logstash-Kafka install on Logstash 1.4.2
 
@@ -166,18 +162,10 @@ the output configuration something like:
         }
     }
 
-To specify a parition key for Kafka, configure a format that will produce the key as a string.  For example, to parition by host:
-
-    # output {
-        kafka {
-            partition_key_format => "%{host}"
-        }
-    }
-    
 ## Testing
 
-    # bundle install
-    # bundle exec rspec
+    # make tarball
+    # make tarball-test
 
 ## Notes
 

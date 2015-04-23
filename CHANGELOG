@@ -1,3 +1,10 @@
+0.8.0 (April 23, 2015)
+    # general
+    - reverted features to ensure Logstash 1.4.2 compatibility.
+    # outputs
+    - removed partition key formatting
+    # inputs
+    - removed Event#sprintf placeholders support for topic_id
 0.6.0 (September 20, 2014)
     # general
     - updated to match elasticsearch/logstash current
