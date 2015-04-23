@@ -1,4 +1,6 @@
 language: ruby
 rvm:
   - jruby-19mode
-script: bundle exec rspec
+script: 
+  - make tarball
+  - make tarball-test
