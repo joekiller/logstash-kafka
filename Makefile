@@ -179,4 +179,4 @@ tarball-test: #build/logstash-$(VERSION).tar.gz
 	$(QUIET)-rm -rf build/test-tarball/
 	$(QUIET)mkdir -p build/test-tarball/
 	tar -C build/test-tarball --strip-components 1 -xf build/logstash-$(VERSION).tar.gz
-	(cd build/test-tarball; bin/logstash rspec spec/**/*.rb spec/*.rb --fail-fast)
+	(cd build/test-tarball; bin/logstash rspec spec/**/kafka*.rb)
