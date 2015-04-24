@@ -20,6 +20,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
   milestone 1
 
+  attr_accessor :exception_repeats
+
   default :codec, 'json'
 
   # Specifies the ZooKeeper connection string in the form hostname:port where host and port are
@@ -81,6 +83,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # maximum message size the server allows or else it is possible for the producer to send
   # messages larger than the consumer can fetch.
   config :fetch_message_max_bytes, :validate => :number, :default => 1048576
+  config :logstash_stop_on_exception_repeat, :validate => :number, :default=>0 # stop logstash after an exception repeats for certain times, 0 for never stop
 
   public
   def register
@@ -118,6 +121,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   def run(logstash_queue)
     java_import 'kafka.common.ConsumerRebalanceFailedException'
     @logger.info('Running kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
+    
+    @exception_repeats = {}
+
     begin
       @consumer_group.run(@consumer_threads,@kafka_client_queue)
       begin
@@ -139,6 +145,23 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       if @consumer_group.running?
         @consumer_group.shutdown
       end
+      
+      if @logstash_stop_on_exception_repeat > 0
+          case @exception_repeats[e.to_s]
+          when nil
+              @exception_repeats[e.to_s] = @logstash_stop_on_exception_repeat
+          when 1
+              @logger.error("Exception repeated over #{@logstash_stop_on_exception_repeat} times: ",
+                            :exception => e)
+              finished
+              raise LogStash::ShutdownSignal
+          when 2..@logstash_stop_on_exception_repeat
+              @exception_repeats[e.to_s] -= 1
+          else
+              @logger.warn('Exception repeater error')
+          end 
+      end
+      
       sleep(Float(@consumer_restart_sleep_ms) * 1 / 1000)
       retry
     end
