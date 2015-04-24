@@ -74,6 +74,7 @@ Please see [logstash-input-kafka] and [logstash-output-kafka] for Logstash 1.5+
     # cd /path/to/logstash
     # GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka
     # cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/lib/logstash/* lib/logstash/
+    # cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/spec/* spec/
 
 ### Manual Logstash-Kafka Gem Install on Logstash 1.4.2
 

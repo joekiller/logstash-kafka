@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name          =  'logstash-kafka'
-  s.version       = '0.8.1'
+  s.version       = '0.8.3'
   s.platform      = 'java'
   s.authors       = ['Joseph Lawson']
   s.email         = ['joe@joekiller.com']
@@ -13,9 +13,9 @@ Gem::Specification.new do |s|
   s.platform      = 'java'
   s.require_paths = [ 'lib' ]
 
-  s.files = Dir[ 'lib/**/*.rb']
+  s.files = Dir[ 'lib/**/*.rb', 'spec/**/*.rb']
 
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
 
-  s.add_runtime_dependency 'jruby-kafka', ['~> 1.4.0']
+  s.add_runtime_dependency 'jruby-kafka', ['~> 1.4']
 end
