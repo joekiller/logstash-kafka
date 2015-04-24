@@ -71,18 +71,24 @@ Please see [logstash-input-kafka] and [logstash-output-kafka] for Logstash 1.5+
 
 ### Rubygems Logstash-Kafka install on Logstash 1.4.2
 
-    # cd /path/to/logstash
-    # GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka
-    # cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/lib/logstash/* lib/logstash/
-    # cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/spec/* spec/
+```bash
+cd /path/to/logstash
+GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka
+cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/{lib/logstash/*,spec/*} {lib/logstash/,spec/}
+# test install
+USE_JRUBY=1 bin/logstash rspec spec/**/kafka*.rb
+```
+ 
 
 ### Manual Logstash-Kafka Gem Install on Logstash 1.4.2
 
 As root or using sudo:
 
-    # cd /path/to/logstash
-    # GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka-0.7.0-java.gem
-    # cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/lib/logstash/* lib/logstash/
+```bash
+cd /path/to/logstash
+GEM_HOME=vendor/bundle/jruby/1.9 GEM_PATH= java -jar vendor/jar/jruby-complete-1.7.11.jar -S gem install logstash-kafka-0.7.0-java.gem
+cp -R vendor/bundle/jruby/1.9/gems/logstash-kafka-*-java/{lib/logstash/*,spec/*} {lib/logstash/,spec/}
+```
 
 ## Configuration for runtime
 
