@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name          =  'logstash-kafka'
-  s.version       = '0.8.0.beta'
+  s.version       = '0.8.0'
   s.platform      = 'java'
   s.authors       = ['Joseph Lawson']
   s.email         = ['joe@joekiller.com']
